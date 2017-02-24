@@ -87,6 +87,13 @@ function createModel(name, center, scale, alpha, filedata) //Create object from 
     }
   }
 
+  while (3*color_buffer_data.length < 4*vertex_buffer_data.length) {
+    color_buffer_data.push(0.5)
+    color_buffer_data.push(0.75)
+    color_buffer_data.push(1)
+    color_buffer_data.push(1)
+  }
+
   var mymodel = {
     center,
     scale,
@@ -119,7 +126,6 @@ function drawModel (model) {
   gl.uniformMatrix4fv(u_matrix, false, viewMatrix);
 
   // console.log(vertex_buffer_data);
-  // console.log(model.vertex_buffer_data.length);
 
   // draw
   gl.drawArrays(gl.TRIANGLES, 0, model.vertex_buffer_data.length/3);

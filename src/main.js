@@ -16,7 +16,8 @@ function Initialize() {
   window.program = createProgramFromScripts(gl,"2d-vertex-shader", "2d-fragment-shader");
   gl.useProgram(program);
 
-  makeModel('cube1', 'assets/cube.data', [0, 0, 0], [0.2, 0.2, 0.2], 0.8)
+  makeModel('fish', 'assets/fish.obj', [0, 0, 0], [0.1, 0.1, 0.1])
+  // makeModel('aquarium', 'assets/cube.data', [0, 0, 0], [1, 1, 1], 0.0001)
 
   setInterval(drawScene, 50);
 }
@@ -24,14 +25,19 @@ window.Initialize = Initialize
 
 var temp = 0;
 function drawScene(){
-  for(var key in models){
-    var model = models[key];
-    // console.log(model);
-    model['center'][0] += 0.1;
-    viewMatrix = m.multiply(m.translate(model.center), m.scale(model.scale))
-    let transform = m.multiply(m.rotateY(temp), m.rotateX(.5));
-    viewMatrix = m.multiply(transform, viewMatrix)
-    drawModel(model)
-  }
+  var { fish } = models;
+  var transform;
+
+  fish['center'][0] += 0.1;
+  viewMatrix = m.multiply(m.translate(fish.center), m.scale(fish.scale))
+  transform = m.multiply(m.rotateY(temp), m.rotateX(.5));
+  viewMatrix = m.multiply(transform, viewMatrix)
+  drawModel(fish)
+
+  // viewMatrix = m.multiply(m.translate(aquarium.center), m.scale(aquarium.scale))
+  // transform = m.multiply(m.rotateY(0.2), m.rotateX(.5));
+  // viewMatrix = m.multiply(transform, viewMatrix)
+  // drawModel(aquarium)
+
   temp += .314
 }
