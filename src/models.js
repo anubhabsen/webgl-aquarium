@@ -1,20 +1,20 @@
-function openFile(name, x_pos, y_pos, z_pos, x_scale, y_scale, z_scale, filename){
+function openFile(name, center, scale, filename){
   var datastring;
   $.ajax({
     url : filename,
     dataType: "text",
     success : function (data) {
       datastring = data;
-      createModel(name, x_pos, y_pos, z_pos, x_scale, y_scale, z_scale, datastring, filename);
+      createModel(name, center, scale, datastring);
     }
   });
 }
 
-function makeModel(name, x_pos, y_pos, z_pos, x_scale, y_scale, z_scale, filename){
-  openFile(name, x_pos, y_pos, z_pos, x_scale, y_scale, z_scale, filename);
+function makeModel(name, filename, center = [0, 0, 0], scale = [1, 1, 1]){
+  openFile(name, center, scale, filename);
 }
 
-function createModel(name, x_pos, y_pos, z_pos, x_scale, y_scale, z_scale, filedata, filename) //Create object from blender
+function createModel(name, center, scale, filedata) //Create object from blender
 {
   var vertex_buffer_data = [];
   var color_buffer_data = [];
@@ -24,9 +24,9 @@ function createModel(name, x_pos, y_pos, z_pos, x_scale, y_scale, z_scale, filed
     var words = lines[j].split(' ');
     if(words[0] == "v"){
       var cur_point = {};
-      cur_point['x']=parseFloat(words[1]) + x_pos;
-      cur_point['y']=parseFloat(words[2]) + y_pos;
-      cur_point['z']=parseFloat(words[3]) + z_pos;
+      cur_point['x']=parseFloat(words[1]);
+      cur_point['y']=parseFloat(words[2]);
+      cur_point['z']=parseFloat(words[3]);
       //console.log(words);
       points.push(cur_point);
     }
@@ -57,15 +57,15 @@ function createModel(name, x_pos, y_pos, z_pos, x_scale, y_scale, z_scale, filed
       my_triangle['p1'] = t[0]-1;
       my_triangle['p2'] = t[1]-1;
       my_triangle['p3'] = t[2]-1;
-      vertex_buffer_data.push(points[my_triangle['p1']]['x']*x_scale);
-      vertex_buffer_data.push(points[my_triangle['p1']]['y']*y_scale);
-      vertex_buffer_data.push(points[my_triangle['p1']]['z']*z_scale);
-      vertex_buffer_data.push(points[my_triangle['p2']]['x']*x_scale);
-      vertex_buffer_data.push(points[my_triangle['p2']]['y']*y_scale);
-      vertex_buffer_data.push(points[my_triangle['p2']]['z']*z_scale);
-      vertex_buffer_data.push(points[my_triangle['p3']]['x']*x_scale);
-      vertex_buffer_data.push(points[my_triangle['p3']]['y']*y_scale);
-      vertex_buffer_data.push(points[my_triangle['p3']]['z']*z_scale);
+      vertex_buffer_data.push(points[my_triangle['p1']]['x']);
+      vertex_buffer_data.push(points[my_triangle['p1']]['y']);
+      vertex_buffer_data.push(points[my_triangle['p1']]['z']);
+      vertex_buffer_data.push(points[my_triangle['p2']]['x']);
+      vertex_buffer_data.push(points[my_triangle['p2']]['y']);
+      vertex_buffer_data.push(points[my_triangle['p2']]['z']);
+      vertex_buffer_data.push(points[my_triangle['p3']]['x']);
+      vertex_buffer_data.push(points[my_triangle['p3']]['y']);
+      vertex_buffer_data.push(points[my_triangle['p3']]['z']);
     }
     if(words[0] == 'c'){
       var r1,g1,b1,r2,g2,b2,r3,g3,b3;
@@ -87,7 +87,10 @@ function createModel(name, x_pos, y_pos, z_pos, x_scale, y_scale, z_scale, filed
     }
   }
 
-  var mymodel = {'center':[x_pos,y_pos,z_pos], 'scale':[x_scale,y_scale,z_scale], 'name':name, 'filedata':filedata, 'filename':filename,
+  var mymodel = {
+    center,
+    scale,
+    name,
     vertex_buffer_data, color_buffer_data
   };
   models[name] = mymodel;

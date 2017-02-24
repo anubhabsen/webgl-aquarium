@@ -104,6 +104,12 @@ function makeZToWMatrix(fudgeFactor) {
 }
 
 function translate(tx, ty, tz) {
+  if (typeof tx != 'number') {
+    let old = tx
+    tx = old[0]
+    ty = old[1]
+    tz = old[2]
+  }
   return [
     1,  0,  0,  0,
     0,  1,  0,  0,
@@ -149,6 +155,12 @@ function rotateZ(angleInRadians) {
 }
 
 function scale(sx, sy, sz) {
+  if (typeof sx != 'number') {
+    let old = sx
+    sx = old[0]
+    sy = old[1]
+    sz = old[2]
+  }
   return [
     sx, 0,  0,  0,
     0, sy,  0,  0,
