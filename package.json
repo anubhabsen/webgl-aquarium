@@ -15,5 +15,8 @@
     "babelify": "^7.3.0",
     "browserify": "^14.1.0",
     "watchify": "^3.9.0"
+  },
+  "dependencies": {
+    "jquery": "^3.1.1"
   }
 }

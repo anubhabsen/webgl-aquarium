@@ -1,5 +1,21 @@
 var { createProgramFromScripts } = require('./program')
-var { drawRectangle, drawCircle, rectangles, circles } = require('./shapes')
+var { drawModel, makeModel } = require('./models')
+
+window.$ = require('jquery')
+window.viewMatrix = []
+window.models = {}
+
+function makeYRotation(angleInRadians) {
+  var c = Math.cos(angleInRadians);
+  var s = Math.sin(angleInRadians);
+
+  return [
+    c, 0, -s, 0,
+    0, 1, 0, 0,
+    s, 0, c, 0,
+    0, 0, 0, 1
+  ];
+}
 
 function Initialize() {
   window.canvas = document.getElementById("canvas");
@@ -11,27 +27,21 @@ function Initialize() {
   window.program = createProgramFromScripts(gl,"2d-vertex-shader", "2d-fragment-shader");
   gl.useProgram(program);
 
-  var color = [
-    254,  240,  195,  1.0
-  ];
-  drawRectangle('boardbase', {'x':0, 'y':0}, 2, 2, color);
+  viewMatrix = makeYRotation(0 * (3.14/180));
+  makeModel('cube1', 0, 0, 0, 0.2, 0.2, 0.2, 'assets/cube.data')
 
-  var color2 = [
-    125, 125, 78, 1.0
-  ];
-  drawCircle('striker', {'x':0, 'y':0}, 0.1, color2, 50);
   setInterval(drawScene, 50);
 }
 window.Initialize = Initialize
 
+var temp = 0;
 function drawScene(){
-  for(let key in rectangles) {
-    var rectangle = rectangles[key];
-    drawRectangle(key, {'x':rectangle['center']['x'], 'y':rectangle['center']['y']}, rectangle['height'], rectangle['width'], rectangle['color']);
+  for(var key in models){
+    var model = models[key];
+    // console.log(model);
+    model['center'][0] += 0.01;
+    viewMatrix = makeYRotation(temp);
+    drawModel(model)
   }
-  for(let key in circles) {
-    circles[key].center['x'] += 0.01;
-    var circle = circles[key];
-    drawCircle(key, {'x':circle['center']['x'], 'y':circle['center']['y']}, circle['radius'], circle['color'], 50);
-  }
+  temp += .314
 }

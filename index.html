@@ -7,13 +7,15 @@
   <title>Aquarium WebGL</title>
 
 	<script id="2d-vertex-shader" type="x-shader/x-vertex">
-  attribute vec2 a_position;
+  attribute vec3 a_position;
   attribute vec4 a_color;
+
+  uniform mat4 u_matrix;
 
   varying lowp vec4 vColor;
 
   void main() {
-  	gl_Position = vec4(a_position, 0, 1);
+    gl_Position = u_matrix * vec4(a_position, 1);
     vColor = a_color;
   }
 	</script>

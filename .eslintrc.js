@@ -3,6 +3,7 @@ module.exports = {
         "browser": true,
         "es6" : true,
         "commonjs": true,
+        "jquery": true,
     },
     "extends": "eslint:recommended",
     "rules": {
@@ -21,5 +22,7 @@ module.exports = {
         "canvas": true,
         "gl": true,
         "program": true,
+        "viewMatrix": true,
+        "models": true,
     }
 };
