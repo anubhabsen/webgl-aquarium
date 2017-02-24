@@ -16,7 +16,7 @@ function Initialize() {
   window.program = createProgramFromScripts(gl,"2d-vertex-shader", "2d-fragment-shader");
   gl.useProgram(program);
 
-  makeModel('cube1', 'assets/cube.data', [0, 0, 0], [0.2, 0.2, 0.2])
+  makeModel('cube1', 'assets/cube.data', [0, 0, 0], [0.2, 0.2, 0.2], 0.8)
 
   setInterval(drawScene, 50);
 }

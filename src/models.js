@@ -1,20 +1,20 @@
-function openFile(name, center, scale, filename){
+function openFile(name, center, scale, alpha, filename){
   var datastring;
   $.ajax({
     url : filename,
     dataType: "text",
     success : function (data) {
       datastring = data;
-      createModel(name, center, scale, datastring);
+      createModel(name, center, scale, alpha, datastring);
     }
   });
 }
 
-function makeModel(name, filename, center = [0, 0, 0], scale = [1, 1, 1]){
-  openFile(name, center, scale, filename);
+function makeModel(name, filename, center = [0, 0, 0], scale = [1, 1, 1], alpha = 1){
+  openFile(name, center, scale, alpha, filename);
 }
 
-function createModel(name, center, scale, filedata) //Create object from blender
+function createModel(name, center, scale, alpha, filedata) //Create object from blender
 {
   var vertex_buffer_data = [];
   var color_buffer_data = [];
@@ -75,15 +75,15 @@ function createModel(name, center, scale, filedata) //Create object from blender
       color_buffer_data.push(r1/255.0);
       color_buffer_data.push(g1/255.0);
       color_buffer_data.push(b1/255.0);
-      color_buffer_data.push(1.0);
+      color_buffer_data.push(alpha);
       color_buffer_data.push(r2/255.0);
       color_buffer_data.push(g2/255.0);
       color_buffer_data.push(b2/255.0);
-      color_buffer_data.push(1.0);
+      color_buffer_data.push(alpha);
       color_buffer_data.push(r3/255.0);
       color_buffer_data.push(g3/255.0);
       color_buffer_data.push(b3/255.0);
-      color_buffer_data.push(1.0);
+      color_buffer_data.push(alpha);
     }
   }
 
