@@ -2,7 +2,8 @@
 // 4 5 6 7        4 5 6 7
 // 8 9 10 11      8 9 10 11
 // 12 13 14 15    12 13 14 15
-function matrixMultiply(mat1, mat2){
+function matrixMultiply(mat1, mat2)
+{
   return [
     mat1[0]*mat2[0]+mat1[1]*mat2[4]+mat1[2]*mat2[8]+mat1[3]*mat2[12],
     mat1[0]*mat2[1]+mat1[1]*mat2[5]+mat1[2]*mat2[9]+mat1[3]*mat2[13],
@@ -23,7 +24,8 @@ function matrixMultiply(mat1, mat2){
   ];
 }
 
-function matrixMultiply4x1(mat1, mat2){
+function matrixMultiply4x1(mat1, mat2)
+{
   return [
     mat1[0]*mat2[0]+mat1[1]*mat2[1]+mat1[2]*mat2[2]+mat1[3]*mat1[3],
     mat1[4]*mat2[0]+mat1[5]*mat2[1]+mat1[6]*mat2[2]+mat1[7]*mat1[3],
@@ -32,12 +34,14 @@ function matrixMultiply4x1(mat1, mat2){
   ];
 }
 
-function multiply(m1, m2) {
+function multiply(m1, m2)
+{
   if (m2.length == 4) return matrixMultiply4x1(m1, m2)
   else return matrixMultiply(m1, m2)
 }
 
-function inverse(a) {
+function inverse(a)
+{
   var s0 = a[0] * a[5] - a[4] * a[1];
   var s1 = a[0] * a[6] - a[4] * a[2];
   var s2 = a[0] * a[7] - a[4] * a[3];
@@ -82,7 +86,8 @@ function inverse(a) {
   return b;
 }
 
-function perspective(fieldOfViewInRadians, aspect, near, far) {
+function perspective(fieldOfViewInRadians, aspect, near, far)
+{
   var f = Math.tan(Math.PI * 0.5 - 0.5 * fieldOfViewInRadians);
   var rangeInv = 1.0 / (near - far);
 
@@ -94,7 +99,8 @@ function perspective(fieldOfViewInRadians, aspect, near, far) {
   ];
 }
 
-function makeZToWMatrix(fudgeFactor) {
+function makeZToWMatrix(fudgeFactor)
+{
   return [
     1, 0, 0, 0,
     0, 1, 0, 0,
@@ -103,8 +109,10 @@ function makeZToWMatrix(fudgeFactor) {
   ];
 }
 
-function translate(tx, ty, tz) {
-  if (typeof tx != 'number') {
+function translate(tx, ty, tz)
+{
+  if (typeof tx != 'number')
+  {
     let old = tx
     tx = old[0]
     ty = old[1]
@@ -118,7 +126,8 @@ function translate(tx, ty, tz) {
   ];
 }
 
-function rotateX(angleInRadians) {
+function rotateX(angleInRadians)
+{
   var c = Math.cos(angleInRadians);
   var s = Math.sin(angleInRadians);
 
@@ -130,7 +139,8 @@ function rotateX(angleInRadians) {
   ];
 }
 
-function rotateY(angleInRadians) {
+function rotateY(angleInRadians)
+{
   var c = Math.cos(angleInRadians);
   var s = Math.sin(angleInRadians);
 

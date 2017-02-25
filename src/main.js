@@ -1,12 +1,19 @@
 var { createProgramFromScripts } = require('./program')
 var { drawModel, makeModel } = require('./models')
 var m = require('./matrix')
+var fishX=0.05,fishY=0,fishZ=0;
+var isRotating = 0;
+var fishInit = 0;
+var fishRotationX = 0.5,fishRotationY = 1;
+var posX = 1, posY = 1;
+var nextAngleRotation = 3.14;
 
 window.$ = require('jquery')
 window.viewMatrix = []
 window.models = {}
 
-function Initialize() {
+function Initialize()
+{
   window.canvas = document.getElementById("canvas");
 
   window.gl = canvas.getContext("experimental-webgl");
@@ -24,13 +31,97 @@ function Initialize() {
 window.Initialize = Initialize
 
 var temp = 0;
-function drawScene(){
+function drawScene()
+{
   var { fish } = models;
   var transform;
-
-  fish['center'][0] += 0.1;
+  if(!isRotating)
+  {
+    if(posX==1)
+    {
+      if(fish['center'][0]<=6.0)
+      {
+        fish['center'][0] += posX * fishX;
+        if(fish['center'][0]>=6.0)
+        {
+          isRotating = 1;
+        }
+      }
+    }
+    else
+    {
+      if(fish['center'][0]>=-6.0)
+      {
+        fish['center'][0] += posX * fishX;
+        if(fish['center'][0] <=-6.0)
+        {
+          isRotating = 1;
+        }
+      }
+    }
+    if(posY==1)
+    {
+      console.log(fishY);
+      if(fish['center'][1]<=6.0)
+      {
+        fish['center'][1] += posY * fishY;
+        if(fish['center'][1]>=6.0)
+        {
+          isRotating = 2;
+        }
+      }
+    }
+    else
+    {
+      if(fish['center'][1]>=-6.0)
+      {
+        fish['center'][1] += posY * fishY;
+        if(fish['center'][1]<=-6.0)
+        {
+          isRotating = 2;
+        }
+      }
+    }
+  }
+  else
+  {
+    if(isRotating==1)
+    {
+      fishX = 0.05;
+      fishY = 0.08;
+      fish['center'][0] += posX * fishX;
+      fish['center'][1] += posY * fishY;
+      fishRotationY += 0.05;
+      if(fishRotationY>=nextAngleRotation)
+      {
+        isRotating = 0;
+        fishX = 0;
+        fishY = 0.05;
+        fishRotationY= nextAngleRotation;
+        nextAngleRotation += 1.57;
+        posX *= -1;
+      }
+    }
+    else if(isRotating == 2)
+    {
+      fishX = 0.08;
+      fishY = 0.05;
+      fish['center'][0] += posX * fishX;
+      fish['center'][1] += posY * fishY;
+      fishRotationY += 0.05;
+      if(fishRotationY>=nextAngleRotation)
+      {
+        isRotating = 0;
+        fishX = 0.05;
+        fishY = 0;
+        fishRotationY= nextAngleRotation;
+        nextAngleRotation += 1.57;
+        posY *= -1;
+      }
+    }
+  }
   viewMatrix = m.multiply(m.translate(fish.center), m.scale(fish.scale))
-  transform = m.multiply(m.rotateY(temp), m.rotateX(.5));
+  transform = m.multiply(m.rotateY(fishRotationY), m.rotateX(fishRotationX));
   viewMatrix = m.multiply(transform, viewMatrix)
   drawModel(fish)
 
