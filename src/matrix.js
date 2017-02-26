@@ -1,8 +1,10 @@
+var vec = require('./vector')
+
 // 0 1 2 3        0 1 2 3
 // 4 5 6 7        4 5 6 7
 // 8 9 10 11      8 9 10 11
 // 12 13 14 15    12 13 14 15
-function matrixMultiply(mat1, mat2)
+function matrixMultiply(mat2, mat1)
 {
   return [
     mat1[0]*mat2[0]+mat1[1]*mat2[4]+mat1[2]*mat2[8]+mat1[3]*mat2[12],
@@ -179,20 +181,25 @@ function scale(sx, sy, sz) {
   ];
 }
 
-function lookAt(rx,ry,rz,ux,uy,uz,dx,dy,dz,px,py,pz){
-  var  positionMatrix = [
-    1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1, 0,
-    -px,-py,-pz,1,
-  ];
-  var camMatrix = [
-    rx,ry,rz,0,
-    ux,uy,uz,0,
-    dx,dy,dz,0,
-    0, 0, 0, 1,
-  ];
-  return matrixMultiply(camMatrix, positionMatrix)
+function lookAt(eye, target, up){
+  var f = vec.normalize(vec.subtract(target, eye));
+  var s = vec.normalize(vec.cross(f, up));
+  var u = vec.cross(s, f);
+
+  var result = identity();
+  result[4*0 + 0] = s[0];
+  result[4*1 + 0] = s[1];
+  result[4*2 + 0] = s[2];
+  result[4*0 + 1] = u[0];
+  result[4*1 + 1] = u[1];
+  result[4*2 + 1] = u[2];
+  result[4*0 + 2] =-f[0];
+  result[4*1 + 2] =-f[1];
+  result[4*2 + 2] =-f[2];
+  result[4*3 + 0] =-vec.dot(s, eye);
+  result[4*3 + 1] =-vec.dot(u, eye);
+  result[4*3 + 2] = vec.dot(f, eye);
+  return result;
 }
 
 function identity() {

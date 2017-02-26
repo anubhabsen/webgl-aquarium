@@ -1,5 +1,5 @@
 var { createProgramFromScripts } = require('./program')
-var { drawModel, makeModel, getCamera } = require('./models')
+var { drawModel, makeModel } = require('./models')
 var m = require('./matrix')
 var fishX=0.05,fishY=0,fishZ=0;
 var isRotating = 0;
@@ -134,4 +134,13 @@ function drawScene()
   // drawModel(aquarium)
 
   temp += .314
+}
+
+function getCamera() {
+  var eye = [0, 0, -5];
+  var target = [0, 0, 0];
+  var up = [0, 1, 0];
+  var view = m.lookAt(eye, target, up);
+  var projection = m.perspective(Math.PI/2, 1, 0.1, 500);
+  return m.multiply(projection, view);
 }
