@@ -179,6 +179,22 @@ function scale(sx, sy, sz) {
   ];
 }
 
+function lookAt(rx,ry,rz,ux,uy,uz,dx,dy,dz,px,py,pz){
+  var  positionMatrix = [
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, 0,
+    -px,-py,-pz,1,
+  ];
+  var camMatrix = [
+    rx,ry,rz,0,
+    ux,uy,uz,0,
+    dx,dy,dz,0,
+    0, 0, 0, 1,
+  ];
+  return matrixMultiply(camMatrix, positionMatrix)
+}
+
 function identity() {
   return scale(1, 1, 1)
 }
@@ -190,6 +206,7 @@ module.exports = {
 
   perspective,
   makeZToWMatrix,
+  lookAt,
 
   translate,
   rotateX, rotateY, rotateZ,

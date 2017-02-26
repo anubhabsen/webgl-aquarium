@@ -1,3 +1,5 @@
+var m = require('./matrix')
+
 function openFile(name, center, scale, alpha, filename){
   var datastring;
   $.ajax({
@@ -103,6 +105,32 @@ function createModel(name, center, scale, alpha, filedata) //Create object from 
   models[name] = mymodel;
 }
 
+function getCamera() {
+  var cameraPos =  (-3 , -3, 3);
+  var cameraTarget = (0, 0, 0);
+  var dx = cameraPos[0] - cameraTarget[0];
+  var dy = cameraPos[1] - cameraTarget[1];
+  var dz = cameraPos[2] - cameraTarget[2];
+  var temp = Math.sqrt((dx*dx)+(dy*dy)+(dz*dz));
+  dx = dx/temp;
+  dy = dy/temp;
+  dz = dz/temp;
+  var cameraMatrix = m.scale(1, 1, 1);
+  var up = (0, 1, 0);
+  var rx = up[1]*dz - up[2]*dy;
+  var ry = up[2]*dx - up[0]*dy;
+  var rz = up[0]*dy - up[1]*dx;
+  temp = Math.sqrt((rx*rx)+(ry*dy)+(rz*rz));
+  rx = rx/temp;
+  ry = ry/temp;
+  rz = rz/temp;
+  var ux = dy*rz - dz*ry;
+  var uy = dz*rx - dx*rz;
+  var uz = dx*ry - dy*rx;
+  cameraMatrix = m.lookAt(rx,ry,rz,ux,uy,uz,dx,dy,dz,cameraPos[0],cameraPos[1],cameraPos[2]);
+  return cameraMatrix;
+}
+
 function drawModel (model) {
   gl.enable(gl.DEPTH_TEST);
   gl.depthFunc(gl.LEQUAL);
@@ -124,6 +152,7 @@ function drawModel (model) {
   var u_matrix = gl.getUniformLocation(program, "u_matrix");
   //matrix = matrixMultiply(matrix, makeYRotation(69 * (3.14/180)));
   gl.uniformMatrix4fv(u_matrix, false, viewMatrix);
+  // gl.uniformMatrix4fv(u_matrix, false, getCamera(false)); // edit made
 
   // console.log(vertex_buffer_data);
 
@@ -134,5 +163,6 @@ function drawModel (model) {
 module.exports = {
   makeModel,
   createModel,
-  drawModel
+  drawModel,
+  getCamera,
 }

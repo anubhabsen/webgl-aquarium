@@ -1,5 +1,5 @@
 var { createProgramFromScripts } = require('./program')
-var { drawModel, makeModel } = require('./models')
+var { drawModel, makeModel, getCamera } = require('./models')
 var m = require('./matrix')
 var fishX=0.05,fishY=0,fishZ=0;
 var isRotating = 0;
@@ -33,6 +33,7 @@ window.Initialize = Initialize
 var temp = 0;
 function drawScene()
 {
+  var viewTransform = getCamera();
   var { fish } = models;
   var transform;
   if(!isRotating)
@@ -61,7 +62,7 @@ function drawScene()
     }
     if(posY==1)
     {
-      console.log(fishY);
+      // console.log(fishY);
       if(fish['center'][1]<=6.0)
       {
         fish['center'][1] += posY * fishY;
@@ -123,6 +124,8 @@ function drawScene()
   viewMatrix = m.multiply(m.translate(fish.center), m.scale(fish.scale))
   transform = m.multiply(m.rotateY(fishRotationY), m.rotateX(fishRotationX));
   viewMatrix = m.multiply(transform, viewMatrix)
+  // console.log(viewTransform)
+  viewMatrix = m.multiply(viewTransform, viewMatrix);
   drawModel(fish)
 
   // viewMatrix = m.multiply(m.translate(aquarium.center), m.scale(aquarium.scale))
