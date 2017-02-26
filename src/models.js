@@ -121,12 +121,7 @@ function drawModel (model) {
   gl.enableVertexAttribArray(positionLocation);
   gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
 
-  var u_matrix = gl.getUniformLocation(program, "u_matrix");
-  //matrix = matrixMultiply(matrix, makeYRotation(69 * (3.14/180)));
-  gl.uniformMatrix4fv(u_matrix, false, viewMatrix);
-  // gl.uniformMatrix4fv(u_matrix, false, getCamera(false)); // edit made
-
-  // console.log(vertex_buffer_data);
+  gl.uniformMatrix4fv(gl.getUniformLocation(program, "model"), false, Matrices.model);
 
   // draw
   gl.drawArrays(gl.TRIANGLES, 0, model.vertex_buffer_data.length/3);

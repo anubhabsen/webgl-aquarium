@@ -10,12 +10,12 @@
   attribute vec3 a_position;
   attribute vec4 a_color;
 
-  uniform mat4 u_matrix;
+  uniform mat4 projection, view, model;
 
   varying lowp vec4 vColor;
 
   void main() {
-    gl_Position = u_matrix * vec4(a_position, 1);
+    gl_Position = projection * view * model * vec4(a_position, 1);
     vColor = a_color;
   }
 	</script>

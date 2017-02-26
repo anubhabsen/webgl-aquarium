@@ -22,7 +22,7 @@ module.exports = {
         "canvas": true,
         "gl": true,
         "program": true,
-        "viewMatrix": true,
+        "Matrices": true,
         "models": true,
     }
 };

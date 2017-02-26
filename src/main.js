@@ -9,7 +9,7 @@ var posX = 1, posY = 1;
 var nextAngleRotation = 3.14;
 
 window.$ = require('jquery')
-window.viewMatrix = []
+window.Matrices = {}
 window.models = {}
 
 function Initialize()
@@ -33,7 +33,7 @@ window.Initialize = Initialize
 var temp = 0;
 function drawScene()
 {
-  var viewTransform = getCamera();
+  updateCamera();
   var { fish } = models;
   var transform;
   if(!isRotating)
@@ -121,11 +121,9 @@ function drawScene()
       }
     }
   }
-  viewMatrix = m.multiply(m.translate(fish.center), m.scale(fish.scale))
+  Matrices.model = m.multiply(m.translate(fish.center), m.scale(fish.scale))
   transform = m.multiply(m.rotateY(fishRotationY), m.rotateX(fishRotationX));
-  viewMatrix = m.multiply(transform, viewMatrix)
-  // console.log(viewTransform)
-  viewMatrix = m.multiply(viewTransform, viewMatrix);
+  Matrices.model = m.multiply(transform, Matrices.model)
   drawModel(fish)
 
   // viewMatrix = m.multiply(m.translate(aquarium.center), m.scale(aquarium.scale))
@@ -136,11 +134,13 @@ function drawScene()
   temp += .314
 }
 
-function getCamera() {
+function updateCamera() {
   var eye = [0, 0, -5];
   var target = [0, 0, 0];
   var up = [0, 1, 0];
-  var view = m.lookAt(eye, target, up);
-  var projection = m.perspective(Math.PI/2, 1, 0.1, 500);
-  return m.multiply(projection, view);
+  Matrices.view = m.lookAt(eye, target, up);
+  Matrices.projection = m.perspective(Math.PI/2, 1, 0.1, 500);
+  gl.uniformMatrix4fv(gl.getUniformLocation(program, "view"), false, Matrices.view);
+  gl.uniformMatrix4fv(gl.getUniformLocation(program, "projection"), false, Matrices.projection);
+  // return m.multiply(Matrices.projection, Matrices.view);
 }
