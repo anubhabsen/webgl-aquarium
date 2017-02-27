@@ -16,7 +16,7 @@ function Initialize()
   window.canvas = document.getElementById("canvas");
 
   window.gl = canvas.getContext("experimental-webgl");
-  gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
   // setup a GLSL program
   window.program = createProgramFromScripts(gl,"2d-vertex-shader", "2d-fragment-shader");
@@ -27,16 +27,21 @@ function Initialize()
   makeModel('yaxis', 'assets/cube', [0, 1, 0], [0.1, 1, 0.1])
   makeModel('aquarium', 'assets/aquarium', [0, 0, 0], [10, 7, 10], 0.5)
 
-  setInterval(drawScene, 50);
+  tick();
 }
 window.Initialize = Initialize
 
-function drawScene()
-{
+var lastTime = 0;
+function animate() {
+  var timeNow = new Date().getTime();
+  if (lastTime == 0) { lastTime = timeNow; return; }
   updateCamera();
-  var { fish, aquarium } = models;
-  var { xaxis, yaxis } = models;
-  var transform;
+  tickFish();
+  lastTime = timeNow;
+}
+
+function tickFish() {
+  var { fish } = models;
   if(!isRotating)
   {
     if(posX==1)
@@ -122,6 +127,16 @@ function drawScene()
       }
     }
   }
+}
+
+function drawScene() {
+  var { fish, aquarium } = models;
+  var { xaxis, yaxis } = models;
+  var transform;
+
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
   Matrices.model = m.scale(fish.scale)
   Matrices.model = m.multiply(Matrices.model, m.rotateY(Math.PI/2))
   transform = m.multiply(m.rotateY(fishRotationY), m.rotateX(fishRotationX));
@@ -151,4 +166,10 @@ function updateCamera() {
   gl.uniformMatrix4fv(gl.getUniformLocation(program, "view"), false, Matrices.view);
   gl.uniformMatrix4fv(gl.getUniformLocation(program, "projection"), false, Matrices.projection);
   // return m.multiply(Matrices.projection, Matrices.view);
+}
+
+function tick() {
+  window.requestAnimationFrame(tick);
+  drawScene();
+  animate();
 }
