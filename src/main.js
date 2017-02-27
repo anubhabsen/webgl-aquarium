@@ -25,6 +25,7 @@ function Initialize()
   makeModel('fish', 'assets/fish', [0, 0, 0])
   makeModel('xaxis', 'assets/cube', [1, 0, 0], [1, 0.1, 0.1])
   makeModel('yaxis', 'assets/cube', [0, 1, 0], [0.1, 1, 0.1])
+  makeModel('aquarium', 'assets/aquarium', [0, 0, 0], [10, 7, 10], 0.5)
 
   setInterval(drawScene, 50);
 }
@@ -33,7 +34,7 @@ window.Initialize = Initialize
 function drawScene()
 {
   updateCamera();
-  var { fish } = models;
+  var { fish, aquarium } = models;
   var { xaxis, yaxis } = models;
   var transform;
   if(!isRotating)
@@ -132,10 +133,17 @@ function drawScene()
   drawModel(xaxis)
   Matrices.model = m.multiply(m.translate(yaxis.center), m.scale(yaxis.scale))
   drawModel(yaxis)
+
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+  gl.enable(gl.BLEND);
+  Matrices.model = m.multiply(m.translate(aquarium.center), m.scale(aquarium.scale))
+  drawModel(aquarium)
+  gl.disable(gl.BLEND);
+  gl.enable(gl.DEPTH_TEST);
 }
 
 function updateCamera() {
-  var eye = [8, 8, 8];
+  var eye = [12, 12, 12];
   var target = [0, 0, 0];
   var up = [0, 1, 0];
   Matrices.view = m.lookAt(eye, target, up);
