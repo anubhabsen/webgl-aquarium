@@ -1,11 +1,17 @@
 function openFile(name, center, scale, alpha, filename){
   var datastring;
   $.ajax({
-    url : filename,
+    url : filename + '.obj',
     dataType: "text",
     success : function (data) {
       datastring = data;
-      createModel(name, center, scale, alpha, datastring);
+      $.ajax({
+        url : filename + '.mtl',
+        dataType: "text",
+        success : function (mtlstring) {
+          createModel(name, center, scale, alpha, datastring, mtlstring);
+        }
+      })
     }
   });
 }
@@ -14,8 +20,27 @@ function makeModel(name, filename, center = [0, 0, 0], scale = [1, 1, 1], alpha 
   openFile(name, center, scale, alpha, filename);
 }
 
-function createModel(name, center, scale, alpha, filedata) //Create object from blender
+function parseMtl(mtlstring) {
+  var mtllib = {}
+  var lines = mtlstring.split('\n');
+  var curmtl = ''
+  for (var j=0; j<lines.length; j++) {
+    var words = lines[j].split(' ');
+    if (words[0] == 'newmtl') curmtl = words[1]
+    else if (words[0] == 'Kd') {
+      mtllib[curmtl] = [
+        parseFloat(words[1]),
+        parseFloat(words[2]),
+        parseFloat(words[3]),
+      ]
+    }
+  }
+  return mtllib
+}
+
+function createModel(name, center, scale, alpha, filedata, mtlstring) //Create object from blender
 {
+  var mtllib = parseMtl(mtlstring)
   var vertex_buffer_data = [];
   var color_buffer_data = [];
   var points = [];
@@ -33,65 +58,23 @@ function createModel(name, center, scale, alpha, filedata) //Create object from 
   }
   //console.log(points);
   // let lines = filedata.split('\n');
+  var curmtl = ''
   for (var jj=0; jj<lines.length; jj++){
     let words = lines[jj].split(' ');
-    if(words[0] == "f"){
-      var t = [];
-      var linemod = lines[jj].substring(1);
-      let j,ans=0,state=0;
-      for(j=0;j<linemod.length;j++){
-        if(linemod[j]==' '){
-          ans=0;
-          state=1;
-        }
-        else if(linemod[j]=='/' && ans!=0 && state==1){
-          t.push(ans);
-          state=0;
-        }
-        else if(linemod[j]!='/'){
-          ans=ans*10+linemod.charCodeAt(j)-'0'.charCodeAt(0);
-        }
-      }
-      t.push(ans);
-      var my_triangle = {};
-      my_triangle['p1'] = t[0]-1;
-      my_triangle['p2'] = t[1]-1;
-      my_triangle['p3'] = t[2]-1;
-      vertex_buffer_data.push(points[my_triangle['p1']]['x']);
-      vertex_buffer_data.push(points[my_triangle['p1']]['y']);
-      vertex_buffer_data.push(points[my_triangle['p1']]['z']);
-      vertex_buffer_data.push(points[my_triangle['p2']]['x']);
-      vertex_buffer_data.push(points[my_triangle['p2']]['y']);
-      vertex_buffer_data.push(points[my_triangle['p2']]['z']);
-      vertex_buffer_data.push(points[my_triangle['p3']]['x']);
-      vertex_buffer_data.push(points[my_triangle['p3']]['y']);
-      vertex_buffer_data.push(points[my_triangle['p3']]['z']);
-    }
-    if(words[0] == 'c'){
-      var r1,g1,b1,r2,g2,b2,r3,g3,b3;
-      r1 = words[1]; g1 = words[2]; b1 = words[3];
-      r2 = words[4]; g2 = words[5]; b2 = words[6];
-      r3 = words[7]; g3 = words[8]; b3 = words[9];
-      color_buffer_data.push(r1/255.0);
-      color_buffer_data.push(g1/255.0);
-      color_buffer_data.push(b1/255.0);
-      color_buffer_data.push(alpha);
-      color_buffer_data.push(r2/255.0);
-      color_buffer_data.push(g2/255.0);
-      color_buffer_data.push(b2/255.0);
-      color_buffer_data.push(alpha);
-      color_buffer_data.push(r3/255.0);
-      color_buffer_data.push(g3/255.0);
-      color_buffer_data.push(b3/255.0);
-      color_buffer_data.push(alpha);
-    }
-  }
+    if(words[0] == "f") {
+      for (let wc = 1; wc < 4; wc++) {
+        let vxdata = words[wc].split('//')
+        let t = parseInt(vxdata[0]) - 1
+        vertex_buffer_data.push(points[t].x)
+        vertex_buffer_data.push(points[t].y)
+        vertex_buffer_data.push(points[t].z)
 
-  while (3*color_buffer_data.length < 4*vertex_buffer_data.length) {
-    color_buffer_data.push(0.5)
-    color_buffer_data.push(0.75)
-    color_buffer_data.push(1)
-    color_buffer_data.push(1)
+        color_buffer_data.push(mtllib[curmtl][0])
+        color_buffer_data.push(mtllib[curmtl][1])
+        color_buffer_data.push(mtllib[curmtl][2])
+        color_buffer_data.push(alpha)
+      }
+    } else if (words[0] == 'usemtl') curmtl = words[1]
   }
 
   var mymodel = {

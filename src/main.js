@@ -1,12 +1,11 @@
 var { createProgramFromScripts } = require('./program')
 var { drawModel, makeModel } = require('./models')
 var m = require('./matrix')
-var fishX=0.05,fishY=0,fishZ=0;
+var fishX=0.05,fishY=0;
 var isRotating = 0;
-var fishInit = 0;
-var fishRotationX = 0.5,fishRotationY = 1;
-var posX = 1, posY = 1;
-var nextAngleRotation = 3.14;
+var fishRotationX = 0,fishRotationY = 0;
+var posX = 1, posY = -1;
+var nextAngleRotation = Math.PI/2;
 
 window.$ = require('jquery')
 window.Matrices = {}
@@ -23,18 +22,19 @@ function Initialize()
   window.program = createProgramFromScripts(gl,"2d-vertex-shader", "2d-fragment-shader");
   gl.useProgram(program);
 
-  makeModel('fish', 'assets/fish.obj', [0, 0, 0], [0.1, 0.1, 0.1])
-  // makeModel('aquarium', 'assets/cube.data', [0, 0, 0], [1, 1, 1], 0.0001)
+  makeModel('fish', 'assets/fish', [0, 0, 0])
+  makeModel('xaxis', 'assets/cube', [1, 0, 0], [1, 0.1, 0.1])
+  makeModel('yaxis', 'assets/cube', [0, 1, 0], [0.1, 1, 0.1])
 
   setInterval(drawScene, 50);
 }
 window.Initialize = Initialize
 
-var temp = 0;
 function drawScene()
 {
   updateCamera();
   var { fish } = models;
+  var { xaxis, yaxis } = models;
   var transform;
   if(!isRotating)
   {
@@ -63,10 +63,10 @@ function drawScene()
     if(posY==1)
     {
       // console.log(fishY);
-      if(fish['center'][1]<=6.0)
+      if(fish['center'][2]<=6.0)
       {
-        fish['center'][1] += posY * fishY;
-        if(fish['center'][1]>=6.0)
+        fish['center'][2] += posY * fishY;
+        if(fish['center'][2]>=6.0)
         {
           isRotating = 2;
         }
@@ -74,10 +74,10 @@ function drawScene()
     }
     else
     {
-      if(fish['center'][1]>=-6.0)
+      if(fish['center'][2]>=-6.0)
       {
-        fish['center'][1] += posY * fishY;
-        if(fish['center'][1]<=-6.0)
+        fish['center'][2] += posY * fishY;
+        if(fish['center'][2]<=-6.0)
         {
           isRotating = 2;
         }
@@ -91,7 +91,7 @@ function drawScene()
       fishX = 0.05;
       fishY = 0.08;
       fish['center'][0] += posX * fishX;
-      fish['center'][1] += posY * fishY;
+      fish['center'][2] += posY * fishY;
       fishRotationY += 0.05;
       if(fishRotationY>=nextAngleRotation)
       {
@@ -108,7 +108,7 @@ function drawScene()
       fishX = 0.08;
       fishY = 0.05;
       fish['center'][0] += posX * fishX;
-      fish['center'][1] += posY * fishY;
+      fish['center'][2] += posY * fishY;
       fishRotationY += 0.05;
       if(fishRotationY>=nextAngleRotation)
       {
@@ -121,21 +121,21 @@ function drawScene()
       }
     }
   }
-  Matrices.model = m.multiply(m.translate(fish.center), m.scale(fish.scale))
+  Matrices.model = m.scale(fish.scale)
+  Matrices.model = m.multiply(Matrices.model, m.rotateY(Math.PI/2))
   transform = m.multiply(m.rotateY(fishRotationY), m.rotateX(fishRotationX));
   Matrices.model = m.multiply(transform, Matrices.model)
+  Matrices.model = m.multiply(m.translate(fish.center), Matrices.model)
   drawModel(fish)
 
-  // viewMatrix = m.multiply(m.translate(aquarium.center), m.scale(aquarium.scale))
-  // transform = m.multiply(m.rotateY(0.2), m.rotateX(.5));
-  // viewMatrix = m.multiply(transform, viewMatrix)
-  // drawModel(aquarium)
-
-  temp += .314
+  Matrices.model = m.multiply(m.translate(xaxis.center), m.scale(xaxis.scale))
+  drawModel(xaxis)
+  Matrices.model = m.multiply(m.translate(yaxis.center), m.scale(yaxis.scale))
+  drawModel(yaxis)
 }
 
 function updateCamera() {
-  var eye = [0, 0, -5];
+  var eye = [8, 8, 8];
   var target = [0, 0, 0];
   var up = [0, 1, 0];
   Matrices.view = m.lookAt(eye, target, up);
