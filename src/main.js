@@ -7,6 +7,17 @@ var fishRotationX = 0,fishRotationY = 0;
 var posX = 1, posY = -1;
 var nextAngleRotation = Math.PI/2;
 
+var aquariumSize = {
+  x: 10,
+  y: 7,
+  z: 10,
+}
+
+var bubbles = {
+  activeBubbles: [],
+  num: 0
+}
+
 window.$ = require('jquery')
 window.Matrices = {}
 window.models = {}
@@ -14,6 +25,16 @@ window.models = {}
 function Initialize()
 {
   window.canvas = document.getElementById("canvas");
+
+  document.getElementById("canvas").oncontextmenu = function() {
+    bubbles.num++
+    bubbles.activeBubbles.push(bubbles.num)
+    var x = Math.floor(Math.random() * (2*aquariumSize.x + 1) - aquariumSize.x)
+    var z = Math.floor(Math.random() * (2*aquariumSize.z + 1) - aquariumSize.z)
+    makeModel('bubble' + bubbles.num.toString(), 'assets/bubble', [x, -aquariumSize.y + 2, z], [0.3, 0.3, 0.3])
+
+    return false
+  }
 
   window.gl = canvas.getContext("experimental-webgl");
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -25,8 +46,7 @@ function Initialize()
   makeModel('fish', 'assets/fish', [0, 0, 0])
   makeModel('xaxis', 'assets/cube', [1, 0, 0], [1, 0.1, 0.1])
   makeModel('yaxis', 'assets/cube', [0, 1, 0], [0.1, 1, 0.1])
-  makeModel('aquarium', 'assets/aquarium', [0, 0, 0], [10, 7, 10], 0.5)
-
+  makeModel('aquarium', 'assets/aquarium', [0, 0, 0], [aquariumSize.x, aquariumSize.y, aquariumSize.z], 0.5)
   tick();
 }
 window.Initialize = Initialize
@@ -37,7 +57,22 @@ function animate() {
   if (lastTime == 0) { lastTime = timeNow; return; }
   updateCamera();
   tickFish();
+  updateBubbles();
   lastTime = timeNow;
+}
+
+function updateBubbles() {
+  bubbles.activeBubbles.map(function (n, i) {
+    var bubble = models['bubble' + n.toString()]
+    var y = bubble['center'][1]
+
+    if (y <= aquariumSize.y - 0.8) {
+      bubble['center'][1] += 0.2
+    }
+    else {
+      bubbles.activeBubbles.splice(i, 1)
+    }
+  })
 }
 
 function tickFish() {
@@ -148,6 +183,12 @@ function drawScene() {
   drawModel(xaxis)
   Matrices.model = m.multiply(m.translate(yaxis.center), m.scale(yaxis.scale))
   drawModel(yaxis)
+
+  bubbles.activeBubbles.map(function (n) {
+    var bubble = models['bubble' + n.toString()]
+    Matrices.model = m.multiply(m.translate(bubble.center), m.scale(bubble.scale))
+    drawModel(bubble)
+  })
 
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
   gl.enable(gl.BLEND);
