@@ -18,6 +18,19 @@ var bubbles = {
   num: 0
 }
 
+var Camera = {
+  x: 12,
+  y: 12,
+  z: 12,
+  lookx: 0,
+  looky: 0,
+  lookz: 0,
+}
+
+function toRadians (angle) {
+  return angle * (Math.PI / 180);
+}
+
 window.$ = require('jquery')
 window.Matrices = {}
 window.models = {}
@@ -26,7 +39,7 @@ function Initialize()
 {
   window.canvas = document.getElementById("canvas");
 
-  document.getElementById("canvas").oncontextmenu = function() {
+  window.canvas.oncontextmenu = function() {
     bubbles.num++
     bubbles.activeBubbles.push(bubbles.num)
     var x = Math.floor(Math.random() * (2*aquariumSize.x + 1) - aquariumSize.x)
@@ -34,6 +47,38 @@ function Initialize()
     makeModel('bubble' + bubbles.num.toString(), 'assets/bubble', [x, -aquariumSize.y + 2, z], [0.3, 0.3, 0.3])
 
     return false
+  }
+
+  window.canvas.onmousemove = function(e) {
+    var rect = window.canvas.getBoundingClientRect();
+    var x = e.clientX - rect.left, y = e.clientY - rect.top
+    x = x - (window.canvas.width / 2.0), y = (window.canvas.height / 2.0) - y
+
+    var theta = (-180.0 / window.canvas.height) * y + 90.0
+    var phi = (360.0 / window.canvas.width) * x + 180.0
+
+    var dx = 1 * Math.sin(toRadians(theta)) * Math.cos(toRadians(phi))
+    var dy = 1 * Math.cos(toRadians(theta))
+    var dz = 1 * Math.sin(toRadians(theta)) * Math.sin(toRadians(phi))
+
+    Camera.lookx = Camera.x + dx
+    Camera.looky = Camera.y + dy
+    Camera.lookz = Camera.z + dz
+  }
+
+  window.onkeydown = function (e) {
+    var key = e.keyCode ? e.keyCode : e.which;
+
+    if (key == 87) {
+      Camera.x += 0.8 * (Camera.lookx - Camera.x)
+      Camera.y += 0.8 * (Camera.looky - Camera.y)
+      Camera.z += 0.8 * (Camera.lookz - Camera.z)
+    }
+    else if (key == 83) {
+      Camera.x -= 0.8 * (Camera.lookx - Camera.x)
+      Camera.y -= 0.8 * (Camera.looky - Camera.y)
+      Camera.z -= 0.8 * (Camera.lookz - Camera.z)
+    }
   }
 
   window.gl = canvas.getContext("experimental-webgl");
@@ -199,9 +244,11 @@ function drawScene() {
 }
 
 function updateCamera() {
-  var eye = [12, 12, 12];
-  var target = [0, 0, 0];
+  // var eye = [12, 12, 12];
+  // var target = [0, 0, 0];
   var up = [0, 1, 0];
+  var eye = [Camera.x, Camera.y, Camera.z]
+  var target = [Camera.lookx, Camera.looky, Camera.lookz]
   Matrices.view = m.lookAt(eye, target, up);
   Matrices.projection = m.perspective(Math.PI/2, 1, 0.1, 500);
   gl.uniformMatrix4fv(gl.getUniformLocation(program, "view"), false, Matrices.view);
