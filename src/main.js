@@ -7,6 +7,12 @@ var fishRotationX = 0,fishRotationY = 0;
 var posX = 1, posY = -1;
 var nextAngleRotation = Math.PI/2;
 
+var mousetrap = require('mousetrap')
+
+mousetrap.bind('c', function () {
+  Camera.mouseUpdate = !Camera.mouseUpdate;
+})
+
 var aquariumSize = {
   x: 10,
   y: 7,
@@ -25,6 +31,7 @@ var Camera = {
   lookx: 0,
   looky: 0,
   lookz: 0,
+  mouseUpdate: true,
 }
 
 function toRadians (angle) {
@@ -50,6 +57,7 @@ function Initialize()
   }
 
   window.canvas.onmousemove = function(e) {
+    if (!Camera.mouseUpdate) return;
     var rect = window.canvas.getBoundingClientRect();
     var x = e.clientX - rect.left, y = e.clientY - rect.top
     x = x - (window.canvas.width / 2.0), y = (window.canvas.height / 2.0) - y
