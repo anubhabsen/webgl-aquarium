@@ -254,9 +254,9 @@ function drawScene() {
   drawModel(weed)
 
   Matrices.model = m.multiply(m.translate(xaxis.center), m.scale(xaxis.scale))
-  drawModel(xaxis)
+  // drawModel(xaxis)
   Matrices.model = m.multiply(m.translate(yaxis.center), m.scale(yaxis.scale))
-  drawModel(yaxis)
+  // drawModel(yaxis)
 
   bubbles.activeBubbles.map(function (n) {
     var bubble = models['bubble' + n.toString()]
