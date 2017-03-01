@@ -1,0 +1,14 @@
+# Blender MTL File: 'BSwap_LPBushes_01.blend'
+# Material Count: 1
+
+newmtl Bushes01
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.2 0.8 0.3
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 0
+map_Kd M:/Downloads/Blendswap/Foliage_Bushes01_DiffuseMask.tga
+map_d M:/Downloads/Blendswap/Foliage_Bushes01_DiffuseMask.tga

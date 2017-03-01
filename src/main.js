@@ -92,6 +92,7 @@ function Initialize()
   makeModel('xaxis', 'assets/cube', [1, 0, 0], [1, 0.1, 0.1])
   makeModel('yaxis', 'assets/cube', [0, 1, 0], [0.1, 1, 0.1])
   makeModel('aquarium', 'assets/aquarium', [0, 0, 0], [aquariumSize.x, aquariumSize.y, aquariumSize.z], 0.5)
+  makeModel('weed', 'assets/weed', [- aquariumSize.x, - aquariumSize.y, 1], [0.05, 0.05, 0.05])
   tick();
 }
 window.Initialize = Initialize
@@ -212,6 +213,7 @@ function tickFish() {
 function drawScene() {
   var { fish, aquarium } = models;
   var { xaxis, yaxis } = models;
+  var {weed} = models;
   var transform;
 
   gl.viewport(0, 0, canvas.width, canvas.height);
@@ -223,6 +225,9 @@ function drawScene() {
   Matrices.model = m.multiply(transform, Matrices.model)
   Matrices.model = m.multiply(m.translate(fish.center), Matrices.model)
   drawModel(fish)
+
+  Matrices.model = m.multiply(m.translate(weed.center), m.scale(weed.scale))
+  drawModel(weed)
 
   Matrices.model = m.multiply(m.translate(xaxis.center), m.scale(xaxis.scale))
   drawModel(xaxis)
