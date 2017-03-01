@@ -48,6 +48,18 @@ function createProgram(gl, name, vertexShader, fragmentShader) {
   program.normalAttribute = gl.getAttribLocation(program, "a_normal");
   gl.enableVertexAttribArray(program.normalAttribute);
 
+  program.diffusionAttribute = gl.getAttribLocation(program, "a_diffusion");
+  gl.enableVertexAttribArray(program.diffusionAttribute);
+
+  program.spectralAttribute = gl.getAttribLocation(program, "a_spectral");
+  gl.enableVertexAttribArray(program.spectralAttribute);
+
+  program.ambientAttribute = gl.getAttribLocation(program, "a_ambient");
+  gl.enableVertexAttribArray(program.ambientAttribute);
+
+  program.shininessAttribute = gl.getAttribLocation(program, "a_shininess");
+  gl.enableVertexAttribArray(program.shininessAttribute);
+
   shaders[name] = progra;
 }
 

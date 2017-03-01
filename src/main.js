@@ -102,15 +102,13 @@ function Initialize()
   shaders.createShader('material')
 
   makeModel('fish', 'assets/fish', [0, 0, 0])
-  makeModel('xaxis', 'assets/cube', [1, 0, 0], [1, 0.1, 0.1])
-  makeModel('yaxis', 'assets/cube', [0, 1, 0], [0.1, 1, 0.1])
 
-  makeModel('aquarium', 'assets/aquarium', [0, 0, 0], [aquariumSize.x, aquariumSize.y, aquariumSize.z], 0.5)
+  makeModel('aquarium', 'assets/aquarium', [0, 0, 0], [aquariumSize.x, aquariumSize.y, aquariumSize.z])
   makeModel('weed', 'assets/weed', [- aquariumSize.x, - aquariumSize.y, 1], [0.05, 0.05, 0.05])
 
-  makeModel('wall', 'assets/cube', [0, 0, 0], [30, 30, 30], 1, true)
+  makeModel('wall', 'assets/wall', [0, 0, 0], [30, 30, 30], true)
 
-  makeModel('light', 'assets/cube', [15, 25, 15], [0.1, 0.1, 0.1])
+  makeModel('light', 'assets/cube', [28, 25, 0], [1, 1, 4])
 
   tick();
 }
@@ -260,7 +258,6 @@ function tickCube(d) {
 
 function drawScene() {
   var { fish, aquarium } = models;
-  var { xaxis, yaxis } = models;
   var { weed, wall, light } = models;
   var transform;
 
@@ -272,8 +269,6 @@ function drawScene() {
   gl.enable(gl.DEPTH_TEST);
   gl.depthFunc(gl.LEQUAL);
 
-  loadMaterial('wall')
-
   Matrices.model = m.scale(fish.scale)
   Matrices.model = m.multiply(Matrices.model, m.rotateY(Math.PI/2))
   transform = m.multiply(m.rotateY(fishRotationY), m.rotateX(fishRotationX));
@@ -284,11 +279,6 @@ function drawScene() {
   Matrices.model = m.multiply(m.rotateY(0), m.rotateX(weed.anglex * Math.PI / 180))
   Matrices.model = m.multiply(m.translate(weed.center), m.scale(weed.scale))
   drawModel(weed)
-
-  Matrices.model = m.multiply(m.translate(xaxis.center), m.scale(xaxis.scale))
-  // drawModel(xaxis)
-  Matrices.model = m.multiply(m.translate(yaxis.center), m.scale(yaxis.scale))
-  // drawModel(yaxis)
 
   bubbles.activeBubbles.map(function (n) {
     var bubble = models['bubble' + n.toString()]
@@ -302,7 +292,6 @@ function drawScene() {
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.ONE, gl.ONE);
   gl.enable(gl.CULL_FACE);
-  loadMaterial('glass')
   Matrices.model = m.multiply(m.translate(aquarium.center), m.scale(aquarium.scale))
   drawModel(aquarium)
   gl.disable(gl.CULL_FACE);
@@ -310,21 +299,6 @@ function drawScene() {
 
   Matrices.model = m.multiply(m.translate(light.center), m.scale(light.scale))
   drawLight(light)
-}
-
-var materials = {
-  wall: {
-    ambient: [1, .5, .31],
-    diffuse: [1, .5, .31],
-    specular: [0, 0, 0],
-    shininess: 32,
-  },
-  glass: {
-    ambient: [0, 0.25, 1],
-    diffuse: [0, 0.05, 0.2],
-    specular: [1, 1, 1],
-    shininess: 256,
-  }
 }
 
 function updateCamera() {
@@ -351,16 +325,6 @@ function updateCamera() {
   gl.uniform3f(gl.getUniformLocation(program, "light.ambient"),  ambientColor[0], ambientColor[1], ambientColor[2]);
   gl.uniform3f(gl.getUniformLocation(program, "light.diffuse"),  diffuseColor[0], diffuseColor[1], diffuseColor[2]);
   gl.uniform3f(gl.getUniformLocation(program, "light.specular"), 1.0, 1.0, 1.0);
-}
-
-function loadMaterial(mat) {
-  var material = materials[mat];
-  // Set material properties
-  gl.uniform3f(gl.getUniformLocation(program, "material.ambient"),   material.ambient[0], material.ambient[1], material.ambient[2]);
-  gl.uniform3f(gl.getUniformLocation(program, "material.diffuse"),   material.diffuse[0], material.diffuse[1], material.diffuse[2]);
-  gl.uniform3f(gl.getUniformLocation(program, "material.specular"),  material.specular[0], material.specular[1], material.specular[2]);
-  gl.uniform1f(gl.getUniformLocation(program, "material.shininess"), material.shininess);
-  gl.uniform1i(gl.getUniformLocation(program, "isFishLens"), Camera.fishLens);
 }
 
 function tick() {

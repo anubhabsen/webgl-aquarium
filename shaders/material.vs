@@ -1,13 +1,19 @@
 precision lowp float;
 
 attribute vec3 a_position;
-attribute vec4 a_color;
 attribute vec3 a_normal;
+attribute vec3 a_diffusion;
+attribute vec3 a_spectral;
+attribute vec3 a_ambient;
+attribute float a_shininess;
 
 uniform mat4 projection, view, model, modelInv;
 uniform bool isFishLens;
 
 varying lowp vec3 FragPos, Normal;
+
+varying lowp vec3 diffusion, spectral, ambient;
+varying lowp float shininess;
 
 void main() {
   gl_Position = projection * view * model * vec4(a_position, 1);
@@ -27,4 +33,9 @@ void main() {
   tm[1] = vec3(modelInv[0].y, modelInv[1].y, modelInv[2].y);
   tm[2] = vec3(modelInv[0].z, modelInv[1].z, modelInv[2].z);
   Normal = tm * vec3(a_normal);
+
+  diffusion = a_diffusion;
+  spectral = a_spectral;
+  ambient = a_ambient;
+  shininess = a_shininess;
 }

@@ -18,7 +18,7 @@ function openFile(name, filename){
   });
 }
 
-function makeModel(name, filename, center = [0, 0, 0], scale = [1, 1, 1], alpha = 1, invertNormals = false) {
+function makeModel(name, filename, center = [0, 0, 0], scale = [1, 1, 1], invertNormals = false) {
   models[name] = {name, center, scale, invertNormals};
   openFile(name, filename);
 }
@@ -29,13 +29,29 @@ function parseMtl(mtlstring) {
   var curmtl = ''
   for (var j=0; j<lines.length; j++) {
     var words = lines[j].split(' ');
-    if (words[0] == 'newmtl') curmtl = words[1]
-    else if (words[0] == 'Kd') {
-      mtllib[curmtl] = [
+    if (words[0] == 'newmtl') {
+      curmtl = words[1]
+      mtllib[curmtl] = {}
+    } else if (words[0] == 'Kd') {
+      mtllib[curmtl].diffusion = [
         parseFloat(words[1]),
         parseFloat(words[2]),
         parseFloat(words[3]),
       ]
+    } else if (words[0] == 'Ks') {
+      mtllib[curmtl].spectral = [
+        parseFloat(words[1]),
+        parseFloat(words[2]),
+        parseFloat(words[3]),
+      ]
+    } else if (words[0] == 'Ka') {
+      mtllib[curmtl].ambient = [
+        parseFloat(words[1]),
+        parseFloat(words[2]),
+        parseFloat(words[3]),
+      ]
+    } else if (words[0] == 'Ns') {
+      mtllib[curmtl].shininess = parseFloat(words[1])
     }
   }
   return mtllib
@@ -46,7 +62,10 @@ function createModel(name, filedata, mtlstring) //Create object from blender
   var model = models[name];
   var mtllib = parseMtl(mtlstring)
   var vertex_buffer_data = [];
-  var color_buffer_data = [];
+  var diffusion_buffer_data = [];
+  var spectral_buffer_data = [];
+  var ambient_buffer_data = [];
+  var shininess_buffer_data = [];
   var points = [];
 
   var normals = [];
@@ -95,10 +114,19 @@ function createModel(name, filedata, mtlstring) //Create object from blender
           normal_buffer_data.push(normals[f].z)
         }
 
-        color_buffer_data.push(mtllib[curmtl][0])
-        color_buffer_data.push(mtllib[curmtl][1])
-        color_buffer_data.push(mtllib[curmtl][2])
-        color_buffer_data.push(model.alpha)
+        diffusion_buffer_data.push(mtllib[curmtl].diffusion[0])
+        diffusion_buffer_data.push(mtllib[curmtl].diffusion[1])
+        diffusion_buffer_data.push(mtllib[curmtl].diffusion[2])
+
+        spectral_buffer_data.push(mtllib[curmtl].spectral[0])
+        spectral_buffer_data.push(mtllib[curmtl].spectral[1])
+        spectral_buffer_data.push(mtllib[curmtl].spectral[2])
+
+        ambient_buffer_data.push(mtllib[curmtl].ambient[0])
+        ambient_buffer_data.push(mtllib[curmtl].ambient[1])
+        ambient_buffer_data.push(mtllib[curmtl].ambient[2])
+
+        shininess_buffer_data.push(mtllib[curmtl].shininess)
       }
     } else if (words[0] == 'usemtl') curmtl = words[1]
   }
@@ -106,13 +134,33 @@ function createModel(name, filedata, mtlstring) //Create object from blender
   var vertexBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertex_buffer_data), gl.STATIC_DRAW);
+  model.vertexBuffer = vertexBuffer
 
   var normalBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normal_buffer_data), gl.STATIC_DRAW);
-
-  model.vertexBuffer = vertexBuffer
   model.normalBuffer = normalBuffer
+
+  var diffusionBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, diffusionBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(diffusion_buffer_data), gl.STATIC_DRAW);
+  model.diffusionBuffer = diffusionBuffer
+
+  var spectralBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, spectralBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(spectral_buffer_data), gl.STATIC_DRAW);
+  model.spectralBuffer = spectralBuffer
+
+  var ambientBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, ambientBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(ambient_buffer_data), gl.STATIC_DRAW);
+  model.ambientBuffer = ambientBuffer
+
+  var shininessBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, shininessBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(shininess_buffer_data), gl.STATIC_DRAW);
+  model.shininessBuffer = shininessBuffer
+
   model.numVertex = vertex_buffer_data.length / 3;
 }
 
@@ -124,6 +172,18 @@ function drawModel (model) {
 
   gl.bindBuffer(gl.ARRAY_BUFFER, model.normalBuffer)
   gl.vertexAttribPointer(program.normalAttribute, 3, gl.FLOAT, false, 0, 0);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, model.diffusionBuffer)
+  gl.vertexAttribPointer(program.diffusionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, model.spectralBuffer)
+  gl.vertexAttribPointer(program.spectralAttribute, 3, gl.FLOAT, false, 0, 0);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, model.ambientBuffer)
+  gl.vertexAttribPointer(program.ambientAttribute, 3, gl.FLOAT, false, 0, 0);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, model.shininessBuffer)
+  gl.vertexAttribPointer(program.shininessAttribute, 1, gl.FLOAT, false, 0, 0);
 
   gl.uniformMatrix4fv(gl.getUniformLocation(program, "model"), false, Matrices.model);
   gl.uniformMatrix4fv(gl.getUniformLocation(program, "modelInv"), false, m.inverse(Matrices.model));
