@@ -14,6 +14,10 @@ mousetrap.bind('c', function () {
   Camera.mouseUpdate = !Camera.mouseUpdate;
 })
 
+mousetrap.bind('f', function () {
+  Camera.fishLens = !Camera.fishLens;
+})
+
 var aquariumSize = {
   x: 10,
   y: 7,
@@ -33,6 +37,7 @@ var Camera = {
   looky: 0,
   lookz: 0,
   mouseUpdate: true,
+  fishLens: false,
 }
 
 function toRadians (angle) {
@@ -355,6 +360,7 @@ function loadMaterial(mat) {
   gl.uniform3f(gl.getUniformLocation(program, "material.diffuse"),   material.diffuse[0], material.diffuse[1], material.diffuse[2]);
   gl.uniform3f(gl.getUniformLocation(program, "material.specular"),  material.specular[0], material.specular[1], material.specular[2]);
   gl.uniform1f(gl.getUniformLocation(program, "material.shininess"), material.shininess);
+  gl.uniform1i(gl.getUniformLocation(program, "isFishLens"), Camera.fishLens);
 }
 
 function tick() {
