@@ -104,6 +104,7 @@ function animate() {
   updateCamera();
   tickFish();
   updateBubbles();
+  tickWeed();
   lastTime = timeNow;
 }
 
@@ -119,6 +120,28 @@ function updateBubbles() {
       bubbles.activeBubbles.splice(i, 1)
     }
   })
+}
+
+function tickWeed() {
+  var { weed } = models;
+  weed.anglex = 0
+  weed.angley = 0
+  weed.anglez = 0
+  var movepositivex = 1
+  if(weed.anglex <= 30 && movepositivex == 1) {
+    weed.anglex += 10
+    if(weed.anglex > 30)
+    {
+      movepositivex = 0;
+    }
+  }
+  if(weed.anglex >= -30 && movepositivex == 0) {
+    weed.anglex -= 10
+    if(weed.anglex < -30)
+    {
+      movepositivex = 1
+    }
+  }
 }
 
 function tickFish() {
@@ -226,6 +249,7 @@ function drawScene() {
   Matrices.model = m.multiply(m.translate(fish.center), Matrices.model)
   drawModel(fish)
 
+  Matrices.model = m.multiply(m.rotateY(0), m.rotateX(weed.anglex * Math.PI / 180))
   Matrices.model = m.multiply(m.translate(weed.center), m.scale(weed.scale))
   drawModel(weed)
 
