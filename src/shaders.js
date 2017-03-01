@@ -42,6 +42,12 @@ function createProgram(gl, name, vertexShader, fragmentShader) {
   }
 
   window.program = progra;
+  program.positionAttribute = gl.getAttribLocation(program, "a_position");
+  gl.enableVertexAttribArray(program.vertexAttribute);
+
+  program.normalAttribute = gl.getAttribLocation(program, "a_normal");
+  gl.enableVertexAttribArray(program.normalAttribute);
+
   shaders[name] = progra;
 }
 

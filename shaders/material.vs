@@ -2,7 +2,7 @@ precision lowp float;
 
 attribute vec3 a_position;
 attribute vec4 a_color;
-attribute vec4 a_normal;
+attribute vec3 a_normal;
 
 uniform mat4 projection, view, model, modelInv;
 uniform bool isFishLens;

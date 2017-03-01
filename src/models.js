@@ -103,55 +103,38 @@ function createModel(name, filedata, mtlstring) //Create object from blender
     } else if (words[0] == 'usemtl') curmtl = words[1]
   }
 
-  model.vertex_buffer_data = vertex_buffer_data;
-  model.color_buffer_data = color_buffer_data;
-  model.normal_buffer_data = normal_buffer_data;
+  var vertexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertex_buffer_data), gl.STATIC_DRAW);
+
+  var normalBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normal_buffer_data), gl.STATIC_DRAW);
+
+  model.vertexBuffer = vertexBuffer
+  model.normalBuffer = normalBuffer
+  model.numVertex = vertex_buffer_data.length / 3;
 }
 
 function drawModel (model) {
-  if (!model.vertex_buffer_data) return;
+  if (!model.vertexBuffer) return;
 
-  // var vertexColor = gl.getAttribLocation(program, "a_color");
-  // var colorbuffer = gl.createBuffer();
-  // gl.bindBuffer(gl.ARRAY_BUFFER, colorbuffer);
-  // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model.color_buffer_data), gl.STATIC_DRAW);
-  // gl.enableVertexAttribArray(vertexColor);
-  // gl.vertexAttribPointer(vertexColor, 4, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, model.vertexBuffer)
+  gl.vertexAttribPointer(program.positionAttribute, 3, gl.FLOAT, false, 0, 0);
 
-  var positionLocation = gl.getAttribLocation(program, "a_position");
-  var buffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model.vertex_buffer_data), gl.STATIC_DRAW);
-  gl.enableVertexAttribArray(positionLocation);
-  gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
-
-  var normalLocation = gl.getAttribLocation(program, "a_normal");
-  var normalBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model.normal_buffer_data), gl.STATIC_DRAW);
-  gl.enableVertexAttribArray(normalLocation);
-  gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, model.normalBuffer)
+  gl.vertexAttribPointer(program.normalAttribute, 3, gl.FLOAT, false, 0, 0);
 
   gl.uniformMatrix4fv(gl.getUniformLocation(program, "model"), false, Matrices.model);
   gl.uniformMatrix4fv(gl.getUniformLocation(program, "modelInv"), false, m.inverse(Matrices.model));
 
   // draw
-  gl.drawArrays(gl.TRIANGLES, 0, model.vertex_buffer_data.length/3);
+  gl.drawArrays(gl.TRIANGLES, 0, model.numVertex);
 }
 
 function drawLight(model) {
-  var positionLocation = gl.getAttribLocation(program, "a_position");
-  var buffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model.vertex_buffer_data), gl.STATIC_DRAW);
-  gl.enableVertexAttribArray(positionLocation);
-  gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
-
   gl.uniform1i(gl.getUniformLocation(program, "isLight"), 1);
-
-  gl.uniformMatrix4fv(gl.getUniformLocation(program, "model"), false, Matrices.model);
-  gl.drawArrays(gl.TRIANGLES, 0, model.vertex_buffer_data.length/3);
-
+  drawModel(model);
   gl.uniform1i(gl.getUniformLocation(program, "isLight"), 0);
 }
 
