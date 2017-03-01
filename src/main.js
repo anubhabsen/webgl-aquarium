@@ -1,6 +1,7 @@
-var { createProgramFromScripts } = require('./program')
-var { drawModel, makeModel } = require('./models')
+var shaders = require('./shaders')
+var { drawModel, makeModel, drawLight } = require('./models')
 var m = require('./matrix')
+var vec = require('./vector')
 var fishX=0.05,fishY=0;
 var isRotating = 0;
 var fishRotationX = 0,fishRotationY = 0;
@@ -93,14 +94,19 @@ function Initialize()
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
   // setup a GLSL program
-  window.program = createProgramFromScripts(gl,"2d-vertex-shader", "2d-fragment-shader");
-  gl.useProgram(program);
+  shaders.createShader('material')
 
   makeModel('fish', 'assets/fish', [0, 0, 0])
   makeModel('xaxis', 'assets/cube', [1, 0, 0], [1, 0.1, 0.1])
   makeModel('yaxis', 'assets/cube', [0, 1, 0], [0.1, 1, 0.1])
+
   makeModel('aquarium', 'assets/aquarium', [0, 0, 0], [aquariumSize.x, aquariumSize.y, aquariumSize.z], 0.5)
   makeModel('weed', 'assets/weed', [- aquariumSize.x, - aquariumSize.y, 1], [0.05, 0.05, 0.05])
+
+  makeModel('wall', 'assets/cube', [0, 0, 0], [30, 30, 30], 1, true)
+
+  makeModel('light', 'assets/cube', [15, 25, 15], [0.1, 0.1, 0.1])
+
   tick();
 }
 window.Initialize = Initialize
@@ -109,6 +115,7 @@ var lastTime = 0;
 function animate() {
   var timeNow = new Date().getTime();
   if (lastTime == 0) { lastTime = timeNow; return; }
+  var d = (timeNow - lastTime) / 50;
   updateCamera();
   tickFish();
   updateBubbles();
@@ -241,14 +248,26 @@ function tickFish() {
   }
 }
 
+function tickCube(d) {
+  var { cube } = models;
+  cube.rotation += 0.0314 * d;
+}
+
 function drawScene() {
   var { fish, aquarium } = models;
   var { xaxis, yaxis } = models;
-  var {weed} = models;
+  var { weed, wall, light } = models;
   var transform;
 
   gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.clearColor(0.1, 0.1, 0.1, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  shaders.useShader('material')
+
+  gl.enable(gl.DEPTH_TEST);
+  gl.depthFunc(gl.LEQUAL);
+
+  loadMaterial('wall')
 
   Matrices.model = m.scale(fish.scale)
   Matrices.model = m.multiply(Matrices.model, m.rotateY(Math.PI/2))
@@ -272,17 +291,38 @@ function drawScene() {
     drawModel(bubble)
   })
 
-  gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+  Matrices.model = m.multiply(m.translate(wall.center), m.scale(wall.scale))
+  drawModel(wall)
+
   gl.enable(gl.BLEND);
+  gl.blendFunc(gl.ONE, gl.ONE);
+  gl.enable(gl.CULL_FACE);
+  loadMaterial('glass')
   Matrices.model = m.multiply(m.translate(aquarium.center), m.scale(aquarium.scale))
   drawModel(aquarium)
+  gl.disable(gl.CULL_FACE);
   gl.disable(gl.BLEND);
-  gl.enable(gl.DEPTH_TEST);
+
+  Matrices.model = m.multiply(m.translate(light.center), m.scale(light.scale))
+  drawLight(light)
+}
+
+var materials = {
+  wall: {
+    ambient: [1, .5, .31],
+    diffuse: [1, .5, .31],
+    specular: [0, 0, 0],
+    shininess: 32,
+  },
+  glass: {
+    ambient: [0, 0.25, 1],
+    diffuse: [0, 0.05, 0.2],
+    specular: [1, 1, 1],
+    shininess: 256,
+  }
 }
 
 function updateCamera() {
-  // var eye = [12, 12, 12];
-  // var target = [0, 0, 0];
   var up = [0, 1, 0];
   var eye = [Camera.x, Camera.y, Camera.z]
   var target = [Camera.lookx, Camera.looky, Camera.lookz]
@@ -291,6 +331,30 @@ function updateCamera() {
   gl.uniformMatrix4fv(gl.getUniformLocation(program, "view"), false, Matrices.view);
   gl.uniformMatrix4fv(gl.getUniformLocation(program, "projection"), false, Matrices.projection);
   // return m.multiply(Matrices.projection, Matrices.view);
+
+  var lightPos = models.light.center
+  var lightPosLoc    = gl.getUniformLocation(program, "light.position");
+  var viewPosLoc     = gl.getUniformLocation(program, "viewPos");
+  gl.uniform3f(lightPosLoc, lightPos[0], lightPos[1], lightPos[2]);
+  gl.uniform3f(viewPosLoc,  eye[0], eye[1], eye[2]);
+  var lightColor = [];
+  lightColor[0] = 1;
+  lightColor[1] = 1;
+  lightColor[2] = 1;
+  var diffuseColor = vec.multiplyScalar(lightColor, 0.5); // Decrease the influence
+  var ambientColor = vec.multiplyScalar(diffuseColor, 0.2); // Low influence
+  gl.uniform3f(gl.getUniformLocation(program, "light.ambient"),  ambientColor[0], ambientColor[1], ambientColor[2]);
+  gl.uniform3f(gl.getUniformLocation(program, "light.diffuse"),  diffuseColor[0], diffuseColor[1], diffuseColor[2]);
+  gl.uniform3f(gl.getUniformLocation(program, "light.specular"), 1.0, 1.0, 1.0);
+}
+
+function loadMaterial(mat) {
+  var material = materials[mat];
+  // Set material properties
+  gl.uniform3f(gl.getUniformLocation(program, "material.ambient"),   material.ambient[0], material.ambient[1], material.ambient[2]);
+  gl.uniform3f(gl.getUniformLocation(program, "material.diffuse"),   material.diffuse[0], material.diffuse[1], material.diffuse[2]);
+  gl.uniform3f(gl.getUniformLocation(program, "material.specular"),  material.specular[0], material.specular[1], material.specular[2]);
+  gl.uniform1f(gl.getUniformLocation(program, "material.shininess"), material.shininess);
 }
 
 function tick() {
