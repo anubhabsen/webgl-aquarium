@@ -118,7 +118,7 @@ var lastTime = 0;
 function animate() {
   var timeNow = new Date().getTime();
   if (lastTime == 0) { lastTime = timeNow; return; }
-  var d = (timeNow - lastTime) / 50;
+  // var d = (timeNow - lastTime) / 50;
   updateCamera();
   tickFish();
   updateBubbles();
@@ -251,11 +251,6 @@ function tickFish() {
   }
 }
 
-function tickCube(d) {
-  var { cube } = models;
-  cube.rotation += 0.0314 * d;
-}
-
 function drawScene() {
   var { fish, aquarium } = models;
   var { weed, wall, light } = models;
@@ -309,6 +304,7 @@ function updateCamera() {
   Matrices.projection = m.perspective(Math.PI/2, 1, 0.1, 500);
   gl.uniformMatrix4fv(gl.getUniformLocation(program, "view"), false, Matrices.view);
   gl.uniformMatrix4fv(gl.getUniformLocation(program, "projection"), false, Matrices.projection);
+  gl.uniform1i(gl.getUniformLocation(program, "isFishLens"), Camera.fishLens);
   // return m.multiply(Matrices.projection, Matrices.view);
 
   var lightPos = models.light.center

@@ -2,8 +2,8 @@ precision lowp float;
 
 attribute vec3 a_position;
 attribute vec3 a_normal;
-attribute vec3 a_diffusion;
-attribute vec3 a_spectral;
+attribute vec3 a_diffuse;
+attribute vec3 a_specular;
 attribute vec3 a_ambient;
 attribute float a_shininess;
 
@@ -12,7 +12,7 @@ uniform bool isFishLens;
 
 varying lowp vec3 FragPos, Normal;
 
-varying lowp vec3 diffusion, spectral, ambient;
+varying lowp vec3 diffuse, specular, ambient;
 varying lowp float shininess;
 
 void main() {
@@ -34,8 +34,8 @@ void main() {
   tm[2] = vec3(modelInv[0].z, modelInv[1].z, modelInv[2].z);
   Normal = tm * vec3(a_normal);
 
-  diffusion = a_diffusion;
-  spectral = a_spectral;
+  diffuse = a_diffuse;
+  specular = a_specular;
   ambient = a_ambient;
   shininess = a_shininess;
 }

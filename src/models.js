@@ -33,13 +33,13 @@ function parseMtl(mtlstring) {
       curmtl = words[1]
       mtllib[curmtl] = {}
     } else if (words[0] == 'Kd') {
-      mtllib[curmtl].diffusion = [
+      mtllib[curmtl].diffuse = [
         parseFloat(words[1]),
         parseFloat(words[2]),
         parseFloat(words[3]),
       ]
     } else if (words[0] == 'Ks') {
-      mtllib[curmtl].spectral = [
+      mtllib[curmtl].specular = [
         parseFloat(words[1]),
         parseFloat(words[2]),
         parseFloat(words[3]),
@@ -62,8 +62,8 @@ function createModel(name, filedata, mtlstring) //Create object from blender
   var model = models[name];
   var mtllib = parseMtl(mtlstring)
   var vertex_buffer_data = [];
-  var diffusion_buffer_data = [];
-  var spectral_buffer_data = [];
+  var diffuse_buffer_data = [];
+  var specular_buffer_data = [];
   var ambient_buffer_data = [];
   var shininess_buffer_data = [];
   var points = [];
@@ -114,13 +114,13 @@ function createModel(name, filedata, mtlstring) //Create object from blender
           normal_buffer_data.push(normals[f].z)
         }
 
-        diffusion_buffer_data.push(mtllib[curmtl].diffusion[0])
-        diffusion_buffer_data.push(mtllib[curmtl].diffusion[1])
-        diffusion_buffer_data.push(mtllib[curmtl].diffusion[2])
+        diffuse_buffer_data.push(mtllib[curmtl].diffuse[0])
+        diffuse_buffer_data.push(mtllib[curmtl].diffuse[1])
+        diffuse_buffer_data.push(mtllib[curmtl].diffuse[2])
 
-        spectral_buffer_data.push(mtllib[curmtl].spectral[0])
-        spectral_buffer_data.push(mtllib[curmtl].spectral[1])
-        spectral_buffer_data.push(mtllib[curmtl].spectral[2])
+        specular_buffer_data.push(mtllib[curmtl].specular[0])
+        specular_buffer_data.push(mtllib[curmtl].specular[1])
+        specular_buffer_data.push(mtllib[curmtl].specular[2])
 
         ambient_buffer_data.push(mtllib[curmtl].ambient[0])
         ambient_buffer_data.push(mtllib[curmtl].ambient[1])
@@ -141,15 +141,15 @@ function createModel(name, filedata, mtlstring) //Create object from blender
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normal_buffer_data), gl.STATIC_DRAW);
   model.normalBuffer = normalBuffer
 
-  var diffusionBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, diffusionBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(diffusion_buffer_data), gl.STATIC_DRAW);
-  model.diffusionBuffer = diffusionBuffer
+  var diffuseBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, diffuseBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(diffuse_buffer_data), gl.STATIC_DRAW);
+  model.diffuseBuffer = diffuseBuffer
 
-  var spectralBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, spectralBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(spectral_buffer_data), gl.STATIC_DRAW);
-  model.spectralBuffer = spectralBuffer
+  var specularBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, specularBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(specular_buffer_data), gl.STATIC_DRAW);
+  model.specularBuffer = specularBuffer
 
   var ambientBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, ambientBuffer);
@@ -173,11 +173,11 @@ function drawModel (model) {
   gl.bindBuffer(gl.ARRAY_BUFFER, model.normalBuffer)
   gl.vertexAttribPointer(program.normalAttribute, 3, gl.FLOAT, false, 0, 0);
 
-  gl.bindBuffer(gl.ARRAY_BUFFER, model.diffusionBuffer)
-  gl.vertexAttribPointer(program.diffusionAttribute, 3, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, model.diffuseBuffer)
+  gl.vertexAttribPointer(program.diffuseAttribute, 3, gl.FLOAT, false, 0, 0);
 
-  gl.bindBuffer(gl.ARRAY_BUFFER, model.spectralBuffer)
-  gl.vertexAttribPointer(program.spectralAttribute, 3, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, model.specularBuffer)
+  gl.vertexAttribPointer(program.specularAttribute, 3, gl.FLOAT, false, 0, 0);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, model.ambientBuffer)
   gl.vertexAttribPointer(program.ambientAttribute, 3, gl.FLOAT, false, 0, 0);
