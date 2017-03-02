@@ -70,8 +70,8 @@ function openFile(name, filename){
       console.log(vxShaderData, fragShaderData)
       var fragShader = compileShader(gl, fragShaderData, gl.FRAGMENT_SHADER)
       createProgram(gl, name, vxShader, fragShader)
-    });
-  });
+    }, 'text');
+  }, 'text');
 }
 
 function createShader(shadername) {
