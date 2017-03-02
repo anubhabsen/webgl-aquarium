@@ -325,6 +325,7 @@ function updateCamera() {
 
 function tick() {
   window.requestAnimationFrame(tick);
+  if (!window.program) return;
   drawScene();
   animate();
 }
