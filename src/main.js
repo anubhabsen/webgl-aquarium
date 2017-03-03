@@ -61,9 +61,16 @@ function toRadians (angle) {
 window.$ = require('jquery')
 window.Matrices = {}
 window.models = {}
+
+function resizeCanvas() {
+  canvas.height = canvas.width = Math.min($(document).height(), $(document).width())
+}
+
 function Initialize()
 {
   window.canvas = document.getElementById("canvas");
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas)
 
   window.canvas.oncontextmenu = function() {
     bubbles.num++
@@ -386,7 +393,7 @@ function updateCamera() {
   var eye = [Camera.x, Camera.y, Camera.z]
   var target = [Camera.lookx, Camera.looky, Camera.lookz]
   Matrices.view = m.lookAt(eye, target, up);
-  Matrices.projection = m.perspective(Math.PI/2, 1, 0.1, 500);
+  Matrices.projection = m.perspective(Math.PI/2, canvas.width / canvas.height, 0.1, 500);
   gl.uniformMatrix4fv(gl.getUniformLocation(program, "view"), false, Matrices.view);
   gl.uniformMatrix4fv(gl.getUniformLocation(program, "projection"), false, Matrices.projection);
   gl.uniform1i(gl.getUniformLocation(program, "isFishLens"), Camera.fishLens);

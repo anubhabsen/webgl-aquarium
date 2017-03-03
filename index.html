@@ -6,10 +6,23 @@
 
   <title>Aquarium WebGL</title>
 
+  <style>
+  * {
+    padding: 0;
+    margin: 0;
+  }
+
+  #canvasContainer {
+    background: black;
+    text-align: center;
+  }
+  </style>
 </head>
 <body onload='Initialize()'>
 
-  <canvas id="canvas" width="640" height="480" style="border: 1px solid black;"></canvas>
+  <div id='canvasContainer'>
+    <canvas id="canvas"></canvas>
+  </div>
 
 </body>
 <script type="text/javascript" src="build.js"></script>
