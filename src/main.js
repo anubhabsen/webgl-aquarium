@@ -20,6 +20,18 @@ mousetrap.bind('f', function () {
   Camera.fishLens = !Camera.fishLens;
 })
 
+mousetrap.bind('s', function () {
+  Camera.x -= 0.8 * (Camera.lookx - Camera.x)
+  Camera.y -= 0.8 * (Camera.looky - Camera.y)
+  Camera.z -= 0.8 * (Camera.lookz - Camera.z)
+})
+
+mousetrap.bind('w', function() {
+  Camera.x += 0.8 * (Camera.lookx - Camera.x)
+  Camera.y += 0.8 * (Camera.looky - Camera.y)
+  Camera.z += 0.8 * (Camera.lookz - Camera.z)
+})
+
 var aquariumSize = {
   x: 10,
   y: 7,
@@ -79,21 +91,6 @@ function Initialize()
     Camera.lookx = Camera.x + dx
     Camera.looky = Camera.y + dy
     Camera.lookz = Camera.z + dz
-  }
-
-  window.onkeydown = function (e) {
-    var key = e.keyCode ? e.keyCode : e.which;
-
-    if (key == 87) {
-      Camera.x += 0.8 * (Camera.lookx - Camera.x)
-      Camera.y += 0.8 * (Camera.looky - Camera.y)
-      Camera.z += 0.8 * (Camera.lookz - Camera.z)
-    }
-    else if (key == 83) {
-      Camera.x -= 0.8 * (Camera.lookx - Camera.x)
-      Camera.y -= 0.8 * (Camera.looky - Camera.y)
-      Camera.z -= 0.8 * (Camera.lookz - Camera.z)
-    }
   }
 
   window.gl = canvas.getContext("experimental-webgl");
