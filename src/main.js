@@ -105,6 +105,7 @@ function Initialize()
 
   makeModel('aquarium', 'assets/aquarium', [0, 0, 0], [aquariumSize.x, aquariumSize.y, aquariumSize.z])
   makeModel('weed', 'assets/weed', [- aquariumSize.x, - aquariumSize.y, 1], [0.05, 0.05, 0.05])
+  makeModel('pebble', 'assets/pebble', [ 6, -2, 6], [0.4, 0.4, 0.4])
 
   makeModel('wall', 'assets/wall', [0, 0, 0], [30, 30, 30], true)
 
@@ -123,6 +124,7 @@ function animate() {
   tickFish();
   updateBubbles();
   tickWeed();
+  tickPebble();
   lastTime = timeNow;
 }
 
@@ -156,6 +158,28 @@ function tickWeed() {
   if(weed.anglex >= -30 && movepositivex == 0) {
     weed.anglex -= 10
     if(weed.anglex < -30)
+    {
+      movepositivex = 1
+    }
+  }
+}
+
+function tickPebble() {
+  var { pebble } = models;
+  pebble.anglex = 0
+  pebble.angley = 0
+  pebble.anglez = 0
+  var movepositivex = 1
+  if(pebble.anglex <= 30 && movepositivex == 1) {
+    pebble.anglex += 10
+    if(pebble.anglex > 30)
+    {
+      movepositivex = 0;
+    }
+  }
+  if(pebble.anglex >= -30 && movepositivex == 0) {
+    pebble.anglex -= 10
+    if(pebble.anglex < -30)
     {
       movepositivex = 1
     }
@@ -253,7 +277,7 @@ function tickFish() {
 
 function drawScene() {
   var { fish, aquarium } = models;
-  var { weed, wall, light } = models;
+  var { weed, wall, light, pebble } = models;
   var transform;
 
   gl.viewport(0, 0, canvas.width, canvas.height);
@@ -274,6 +298,10 @@ function drawScene() {
   Matrices.model = m.multiply(m.rotateY(0), m.rotateX(weed.anglex * Math.PI / 180))
   Matrices.model = m.multiply(m.translate(weed.center), m.scale(weed.scale))
   drawModel(weed)
+
+  Matrices.model = m.multiply(m.rotateY(0), m.rotateX(pebble.anglex * Math.PI / 180))
+  Matrices.model = m.multiply(m.translate(pebble.center), m.scale(pebble.scale))
+  drawModel(pebble)
 
   bubbles.activeBubbles.map(function (n) {
     var bubble = models['bubble' + n.toString()]
