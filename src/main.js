@@ -2,11 +2,13 @@ var shaders = require('./shaders')
 var { drawModel, makeModel, drawLight } = require('./models')
 var m = require('./matrix')
 var vec = require('./vector')
-var fishX=0.05,fishY=0;
+var fishX=0.05,fishY=0, fishTwitch=0;
 var isRotating = 0;
 var fishRotationX = 0,fishRotationY = 0;
-var posX = 1, posY = -1;
-var nextAngleRotation = Math.PI/2;
+var posX = 1, posY = -1, weedStart = 0;
+var nextAngleRotation = 90; //Math.PI/2;
+var movepositivex = 1, isMovingX=1, incrementX= 0, incrementY = 0, triggerReverse = 1;
+
 
 var mousetrap = require('mousetrap')
 
@@ -47,7 +49,6 @@ function toRadians (angle) {
 window.$ = require('jquery')
 window.Matrices = {}
 window.models = {}
-
 function Initialize()
 {
   window.canvas = document.getElementById("canvas");
@@ -144,26 +145,25 @@ function updateBubbles() {
 
 function tickWeed() {
   var { weed } = models;
-  weed.anglex = 0
-  weed.angley = 0
-  weed.anglez = 0
-  var movepositivex = 1
-  if(weed.anglex <= 30 && movepositivex == 1) {
-    weed.anglex += 10
-    if(weed.anglex > 30)
+
+
+  if(weed.anglex <= 10 && movepositivex == 1) {
+    weed.anglex += 0.2;
+    if(weed.anglex > 10)
     {
       movepositivex = 0;
     }
   }
-  if(weed.anglex >= -30 && movepositivex == 0) {
-    weed.anglex -= 10
-    if(weed.anglex < -30)
+  if(weed.anglex >= -10 && movepositivex == 0) {
+    weed.anglex -= 0.2;
+    if(weed.anglex < -10)
     {
-      movepositivex = 1
+      movepositivex = 1;
     }
   }
 }
 
+//<<<<<<< HEAD
 function tickPebble() {
   var { pebble } = models;
   pebble.anglex = 0
@@ -186,10 +186,56 @@ function tickPebble() {
   }
 }
 
-function tickFish() {
+//function tickFish() {
+//=======
+function tickFish()
+{
+//>>>>>>> a9ec5c06c07266ddae3f64b25b1096942c46af2a
   var { fish } = models;
   if(!isRotating)
   {
+    if(isMovingX)
+    {
+      //incrementX = 0;
+      if(incrementY <= 1 && triggerReverse == 1)
+      {
+        incrementY += 0.1;
+        if(incrementY >=1)
+        {
+          triggerReverse *= -1;
+        }
+      }
+      else if(incrementY >=-1 && triggerReverse == -1)
+      {
+        incrementY -=0.1;
+        if(incrementY<=-1)
+        {
+          triggerReverse*=-1;
+        }
+      }
+    }
+    else
+    {
+      incrementX = 0;
+      if(incrementY <= 1 && triggerReverse == 1)
+      {
+        incrementY += 0.1;
+        if(incrementY >=1)
+        {
+          triggerReverse *= -1;
+        }
+      }
+      else if(incrementY >=-1 && triggerReverse == -1)
+      {
+        incrementY -=0.1;
+        if(incrementY<=-1)
+        {
+          triggerReverse*=-1.0;
+        }
+      }
+    }
+    //fishRotationX += incrementX;
+    fishRotationY += incrementY;
     if(posX==1)
     {
       if(fish['center'][0]<=6.0)
@@ -240,35 +286,35 @@ function tickFish() {
   {
     if(isRotating==1)
     {
-      fishX = 0.05;
-      fishY = 0.08;
+      fishX = 0.050;
+      fishY = 0.050;
       fish['center'][0] += posX * fishX;
       fish['center'][2] += posY * fishY;
-      fishRotationY += 0.05;
+      fishRotationY += 2.0;
       if(fishRotationY>=nextAngleRotation)
       {
         isRotating = 0;
         fishX = 0;
         fishY = 0.05;
         fishRotationY= nextAngleRotation;
-        nextAngleRotation += 1.57;
+        nextAngleRotation += 90;
         posX *= -1;
       }
     }
     else if(isRotating == 2)
     {
-      fishX = 0.08;
-      fishY = 0.05;
+      fishX = 0.042;
+      fishY = 0.042;
       fish['center'][0] += posX * fishX;
       fish['center'][2] += posY * fishY;
-      fishRotationY += 0.05;
+      fishRotationY += 2.0;
       if(fishRotationY>=nextAngleRotation)
       {
         isRotating = 0;
         fishX = 0.05;
         fishY = 0;
         fishRotationY= nextAngleRotation;
-        nextAngleRotation += 1.57;
+        nextAngleRotation += 90;
         posY *= -1;
       }
     }
@@ -277,7 +323,19 @@ function tickFish() {
 
 function drawScene() {
   var { fish, aquarium } = models;
+//<<<<<<< HEAD
   var { weed, wall, light, pebble } = models;
+//=======
+//  var { weed, wall, light } = models;
+  //console.log(fishRotationY, fishRotationX);
+  if(!weedStart)
+  {
+    weed.anglex = 0
+    weed.angley = 0
+    weed.anglez = 0
+    weedStart = 1;
+  }
+//>>>>>>> a9ec5c06c07266ddae3f64b25b1096942c46af2a
   var transform;
 
   gl.viewport(0, 0, canvas.width, canvas.height);
@@ -289,15 +347,17 @@ function drawScene() {
   gl.depthFunc(gl.LEQUAL);
 
   Matrices.model = m.scale(fish.scale)
-  Matrices.model = m.multiply(Matrices.model, m.rotateY(Math.PI/2))
-  transform = m.multiply(m.rotateY(fishRotationY), m.rotateX(fishRotationX));
+  Matrices.model = m.multiply(Matrices.model, m.rotateY(90*Math.PI/180))
+  transform = m.multiply(m.rotateY(fishRotationY*Math.PI/180), m.rotateX(fishRotationX * Math.PI/180));
   Matrices.model = m.multiply(transform, Matrices.model)
   Matrices.model = m.multiply(m.translate(fish.center), Matrices.model)
-  drawModel(fish)
+  drawModel(fish);
 
-  Matrices.model = m.multiply(m.rotateY(0), m.rotateX(weed.anglex * Math.PI / 180))
-  Matrices.model = m.multiply(m.translate(weed.center), m.scale(weed.scale))
-  drawModel(weed)
+  Matrices.model = m.scale(weed.scale)
+  Matrices.model = m.multiply(Matrices.model, m.rotateX(weed.anglex * Math.PI / 180));
+  //console.log(weed.center);
+  Matrices.model = m.multiply(m.translate(weed.center), Matrices.model);
+  drawModel(weed);
 
   Matrices.model = m.multiply(m.rotateY(0), m.rotateX(pebble.anglex * Math.PI / 180))
   Matrices.model = m.multiply(m.translate(pebble.center), m.scale(pebble.scale))
