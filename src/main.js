@@ -8,6 +8,7 @@ var fishRotationX = 0,fishRotationY = 0;
 var posX = 1, posY = -1, weedStart = 0;
 var nextAngleRotation = 90; //Math.PI/2;
 var movepositivex = 1, isMovingX=1, incrementX= 0, incrementY = 0, triggerReverse = 1;
+var pebblesN = 6;
 
 
 var mousetrap = require('mousetrap')
@@ -109,8 +110,16 @@ function Initialize()
   makeModel('fish', 'assets/fish', [0, 0, 0])
 
   makeModel('aquarium', 'assets/aquarium', [0, 0, 0], [aquariumSize.x, aquariumSize.y, aquariumSize.z])
-  makeModel('weed', 'assets/weed', [- aquariumSize.x, - aquariumSize.y, 1], [0.05, 0.05, 0.05])
-  makeModel('pebble', 'assets/pebble', [ 6, -2, 6], [0.4, 0.4, 0.4])
+  makeModel('weed', 'assets/weed', [- aquariumSize.x, -aquariumSize.y, 1], [0.05, 0.05, 0.05])
+
+  for (let i = 0,temp=0; i<pebblesN; i++) {
+    for (let j = 0; j<pebblesN; j++) {
+      makeModel('pebble'+temp, 'assets/rockSet', [ -aquariumSize.x+i*3+Math.random()*2,-aquariumSize.y, -aquariumSize.z+j*3+Math.random()], [0.4, 0.4, 0.4])
+      temp++;
+    }
+  }
+
+  makeModel('rock', 'assets/rock',[6,-aquariumSize.y+1,6],[0.4,0.4,0.4])
 
   makeModel('wall', 'assets/wall', [0, 0, 0], [30, 30, 30], true)
 
@@ -129,7 +138,6 @@ function animate() {
   tickFish();
   updateBubbles();
   tickWeed();
-  tickPebble();
   lastTime = timeNow;
 }
 
@@ -167,34 +175,8 @@ function tickWeed() {
   }
 }
 
-//<<<<<<< HEAD
-function tickPebble() {
-  var { pebble } = models;
-  pebble.anglex = 0
-  pebble.angley = 0
-  pebble.anglez = 0
-  var movepositivex = 1
-  if(pebble.anglex <= 30 && movepositivex == 1) {
-    pebble.anglex += 10
-    if(pebble.anglex > 30)
-    {
-      movepositivex = 0;
-    }
-  }
-  if(pebble.anglex >= -30 && movepositivex == 0) {
-    pebble.anglex -= 10
-    if(pebble.anglex < -30)
-    {
-      movepositivex = 1
-    }
-  }
-}
-
-//function tickFish() {
-//=======
 function tickFish()
 {
-//>>>>>>> a9ec5c06c07266ddae3f64b25b1096942c46af2a
   var { fish } = models;
   if(!isRotating)
   {
@@ -327,10 +309,7 @@ function tickFish()
 
 function drawScene() {
   var { fish, aquarium } = models;
-//<<<<<<< HEAD
-  var { weed, wall, light, pebble } = models;
-//=======
-//  var { weed, wall, light } = models;
+  var { weed, wall, light, rock } = models;
   //console.log(fishRotationY, fishRotationX);
   if(!weedStart)
   {
@@ -339,7 +318,6 @@ function drawScene() {
     weed.anglez = 0
     weedStart = 1;
   }
-//>>>>>>> a9ec5c06c07266ddae3f64b25b1096942c46af2a
   var transform;
 
   gl.viewport(0, 0, canvas.width, canvas.height);
@@ -363,9 +341,14 @@ function drawScene() {
   Matrices.model = m.multiply(m.translate(weed.center), Matrices.model);
   drawModel(weed);
 
-  Matrices.model = m.multiply(m.rotateY(0), m.rotateX(pebble.anglex * Math.PI / 180))
-  Matrices.model = m.multiply(m.translate(pebble.center), m.scale(pebble.scale))
-  drawModel(pebble)
+  Matrices.model = m.multiply(m.translate(rock.center), m.scale(rock.scale))
+  drawModel(rock)
+
+  for (let i = 0; i < pebblesN*pebblesN; i++) {
+    let pebble = models['pebble'+i]
+    Matrices.model = m.multiply(m.translate(pebble.center), m.scale(pebble.scale))
+    drawModel(pebble)
+  }
 
   bubbles.activeBubbles.map(function (n) {
     var bubble = models['bubble' + n.toString()]
