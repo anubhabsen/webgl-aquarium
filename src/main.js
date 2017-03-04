@@ -22,15 +22,23 @@ mousetrap.bind('f', function () {
 })
 
 mousetrap.bind('s', function () {
-  Camera.x -= 0.8 * (Camera.lookx - Camera.x)
-  Camera.y -= 0.8 * (Camera.looky - Camera.y)
-  Camera.z -= 0.8 * (Camera.lookz - Camera.z)
+  var xd = Camera.lookx - Camera.x
+  var yd = Camera.looky - Camera.y
+  var zd = Camera.lookz - Camera.z
+  var magnitude = Math.sqrt(xd*xd + yd*yd + zd*zd)
+  Camera.x -= 0.8 * xd / magnitude
+  Camera.y -= 0.8 * yd / magnitude
+  Camera.z -= 0.8 * zd / magnitude
 })
 
 mousetrap.bind('w', function() {
-  Camera.x += 0.8 * (Camera.lookx - Camera.x)
-  Camera.y += 0.8 * (Camera.looky - Camera.y)
-  Camera.z += 0.8 * (Camera.lookz - Camera.z)
+  var xd = Camera.lookx - Camera.x
+  var yd = Camera.looky - Camera.y
+  var zd = Camera.lookz - Camera.z
+  var magnitude = Math.sqrt(xd*xd + yd*yd + zd*zd)
+  Camera.x += 0.8 * xd / magnitude
+  Camera.y += 0.8 * yd / magnitude
+  Camera.z += 0.8 * zd / magnitude
 })
 
 var aquariumSize = {
