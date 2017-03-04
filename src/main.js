@@ -144,6 +144,7 @@ function Initialize()
 
   makeModel('aquarium', 'assets/aquarium', [0, 0, 0], [aquariumSize.x, aquariumSize.y, aquariumSize.z])
   makeModel('weed', 'assets/weed', [- aquariumSize.x, -aquariumSize.y, 1], [0.05, 0.05, 0.05])
+  makeModel('table','assets/Table1',[0, -aquariumSize.y*2.7, -2],[12,8,10])
 
   for (let i = 0,temp=0; i<pebblesN; i++) {
     for (let j = 0; j<pebblesN; j++) {
@@ -371,7 +372,7 @@ function tickFish()
 
 function drawScene() {
   var { fish, aquarium } = models;
-  var { weed, wall, light, rock, food } = models;
+  var { weed, wall, light, rock, food, table } = models;
   //console.log(fishRotationY, fishRotationX);
   if(!weedStart)
   {
@@ -405,6 +406,12 @@ function drawScene() {
 
   Matrices.model = m.multiply(m.translate(rock.center), m.scale(rock.scale))
   drawModel(rock)
+  
+  Matrices.model = m.scale(table.scale)
+  //Matrices.model = m.multiply(Matrices.model, m.rotateZ(10*Math.PI/180))
+  //Matrices.model = m.multiply(Matrices.model, m.rotateX(1*Math.PI/180))
+  Matrices.model = m.multiply(m.translate(table.center), Matrices.model)
+  drawModel(table)
 
   for (let i = 0; i < pebblesN*pebblesN; i++) {
     let pebble = models['pebble'+i]
