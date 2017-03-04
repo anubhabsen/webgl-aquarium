@@ -18,8 +18,8 @@ function openFile(name, filename){
   });
 }
 
-function makeModel(name, filename, center = [0, 0, 0], scale = [1, 1, 1], invertNormals = false) {
-  models[name] = {name, center, scale, invertNormals};
+function makeModel(name, filename, center = [0, 0, 0], scale = [1, 1, 1]) {
+  models[name] = {name, center, scale};
   openFile(name, filename);
 }
 
@@ -94,6 +94,7 @@ function createModel(name, filedata, mtlstring) //Create object from blender
   var minZ = 1000000
   var maxZ = -1000000
 
+  var invertNormals = false;
   var normals = [];
   var normal_buffer_data = [];
 
@@ -172,7 +173,7 @@ function createModel(name, filedata, mtlstring) //Create object from blender
           texture_buffer_data.push(textures[t].t)
         }
 
-        if (model.invertNormals) {
+        if (invertNormals) {
           normal_buffer_data.push(-normals[n].x)
           normal_buffer_data.push(-normals[n].y)
           normal_buffer_data.push(-normals[n].z)
@@ -214,6 +215,8 @@ function createModel(name, filedata, mtlstring) //Create object from blender
         vertex_buffer_data = []
         normal_buffer_data = []
         texture_buffer_data = []
+      } else if (words[0] == 'invertNormals') {
+        invertNormals = !invertNormals
       }
       curmtl = words[1]
     }

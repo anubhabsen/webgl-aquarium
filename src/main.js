@@ -151,7 +151,7 @@ function Initialize()
 
   makeModel('rock', 'assets/rock',[6,-aquariumSize.y+1,6],[0.4,0.4,0.4])
 
-  makeModel('wall', 'assets/wall', [0, 0, 0], [30, 30, 30], true)
+  makeModel('wall', 'assets/wall', [0, 0, 0], [30, 30, 30])
 
   makeModel('light', 'assets/cube', [28, 25, 0], [1, 1, 4])
 

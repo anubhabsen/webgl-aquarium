@@ -1,6 +1,7 @@
 # Blender v2.78 (sub 0) OBJ File: ''
 # www.blender.org
 mtllib wall.mtl
+invertNormals
 o Cube
 v 1.000000 -1.000000 -1.000000
 v 1.000000 -1.000000 1.000000
