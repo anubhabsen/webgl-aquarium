@@ -65,6 +65,7 @@ function initFish () {
   fishes.map(function (fish) {
     makeModel('fish' + fish.id.toString(), 'assets/fish' + fish.type, [fish.x, fish.y, fish.z], fish.scale)
   })
+  makeModel('egg', 'assets/food', [0, 0, 0], [0.3, 0.3, 0.3])
 }
 
 function fishMoveTowardsFood(foodx, foody, foodz) {
@@ -79,22 +80,42 @@ mousetrap.bind('k', function () {
   fishes.splice(0, 1);
 })
 
-function drawFish() {
-  fishes.map(function (fish, idx) {
-    if ((!fishViewOn) || (fishViewOn && (idx != currentViewFish))) {
-      var mfish = models['fish' + fish.id.toString()]
+var eggData = {
+  timeBeforeShrink: 3,
+  startTime: 0,
+  active: false,
+}
 
-      // var x = fish.lookx - fish.x
-      // var y = fish.looky - fish.y
-      // var z = fish.lookz - fish.z
-      //
-      // var theta = Math.atan2(z, x)
-      // var phi = Math.atan2(y, Math.sqrt(x*x + z*z))
-      // console.log("HIIII", theta, phi)
-      Matrices.model = m.scale(mfish.scale)
-      Matrices.model = m.multiply(m.rotateY(fish.angley * Math.PI/180), Matrices.model)
-      Matrices.model = m.multiply(m.inverse(m.lookAt([fish.x, fish.y, fish.z], [-fish.lookx, -fish.looky, -fish.lookz], [0, 1, 0])), Matrices.model)
-      drawModel(mfish);
+mousetrap.bind('e', function () {
+  if (!eggData.active) {
+    models.egg['center'][0] = fishes[0].x
+    models.egg['center'][1] = fishes[0].y
+    models.egg['center'][2] = fishes[0].z
+    eggData.active = true;
+    eggData.startTime = new Date().getTime() / 1000.0
+  }
+  console.log('eggs');
+})
+
+function drawFish() {
+  fishes.map(function (fish) {
+    var mfish = models['fish' + fish.id.toString()]
+    var eggs = models['egg']
+    // var x = fish.lookx - fish.x
+    // var y = fish.looky - fish.y
+    // var z = fish.lookz - fish.z
+    //
+    // var theta = Math.atan2(z, x)
+    // var phi = Math.atan2(y, Math.sqrt(x*x + z*z))
+    // console.log("HIIII", theta, phi)
+    Matrices.model = m.scale(mfish.scale)
+    Matrices.model = m.multiply(m.rotateY(fish.angley * Math.PI/180), Matrices.model)
+    Matrices.model = m.multiply(m.inverse(m.lookAt([fish.x, fish.y, fish.z], [-fish.lookx, -fish.looky, -fish.lookz], [0, 1, 0])), Matrices.model)
+    drawModel(mfish);
+
+    if (eggData.active) {
+      Matrices.model = m.multiply(m.translate(eggs.center), m.scale(eggs.scale))
+      drawModel(eggs)
     }
   })
 }
@@ -179,6 +200,27 @@ function updateFish() {
 
 }
 
+function updateEgg () {
+  if (eggData.active) {
+    if (models.egg['center'][1] >= (-aquariumSize.y + 1)) {
+      models.egg['center'][1] -= 0.2;
+    }
+    else {
+      var time = new Date().getTime() / 1000.0
+      if (time - eggData.startTime <= eggData.timeBeforeShrink) {
+        for (var i = 0; i <= 2; i++) models.egg['scale'][i] -= 0.008
+      }
+      else {
+        for (var j = 0; j <= 2; j++) models.egg['scale'][j] = 1
+        eggData.active = false
+      }
+    }
+  }
+  else {
+    models.egg['center'][1] = aquariumSize.y - 1
+  }
+}
+
 module.exports = {
   initFish,
   drawFish,
@@ -187,4 +229,5 @@ module.exports = {
   cancelFishView,
   fishMoveTowardsFood,
   aquariumSize,
+  updateEgg,
 }

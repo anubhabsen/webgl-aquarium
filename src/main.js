@@ -6,8 +6,9 @@ var weedStart = 0;
 var movepositivex = 1;
 var pebblesN = 15;
 
-var { initFish, drawFish, updateFish, cycleFish, cancelFishView, fishMoveTowardsFood, aquariumSize } = require('./fish')
+var { initFish, drawFish, updateFish, cycleFish, cancelFishView, fishMoveTowardsFood, aquariumSize, updateEgg } = require('./fish')
 var fishMovingTowardsFood = false
+
 
 var mousetrap = require('mousetrap')
 
@@ -193,6 +194,7 @@ function animate() {
   tickWeed();
   updateFood();
   updateFish();
+  updateEgg();
   lastTime = timeNow;
 }
 
