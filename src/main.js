@@ -8,7 +8,7 @@ var fishRotationX = 0,fishRotationY = 0;
 var posX = 1, posY = -1, weedStart = 0;
 var nextAngleRotation = 90; //Math.PI/2;
 var movepositivex = 1, isMovingX=1, incrementX= 0, incrementY = 0, triggerReverse = 1;
-var pebblesN = 6;
+var pebblesN = 15;
 
 
 var mousetrap = require('mousetrap')
@@ -142,11 +142,8 @@ function Initialize()
 
   // makeModel('table','assets/Table',[0, -aquariumSize.y*2.7, -2],[12,8,10])
 
-  for (let i = 0,temp=0; i<pebblesN; i++) {
-    for (let j = 0; j<pebblesN; j++) {
-      makeModel('pebble'+temp, 'assets/rockSet', [ -aquariumSize.x+i*3+Math.random()*2,-aquariumSize.y, -aquariumSize.z+j*3+Math.random()], [0.4, 0.4, 0.4])
-      temp++;
-    }
+  for (let i = 0; i < pebblesN; i++) {
+    makeModel('pebble'+i, 'assets/pebble', [-aquariumSize.x*0.9+1.8*aquariumSize.x*Math.random(),-aquariumSize.y+0.1, -aquariumSize.z*0.9+1.8*aquariumSize.z*Math.random()], [0.4, 0.4, 0.4])
   }
 
   makeModel('rock', 'assets/rock',[6,-aquariumSize.y+1,6],[0.4,0.4,0.4])
@@ -424,7 +421,7 @@ function drawScene() {
   // Matrices.model = m.multiply(m.translate(table.center), Matrices.model)
   // drawModel(table)
 
-  for (let i = 0; i < pebblesN*pebblesN; i++) {
+  for (let i = 0; i < pebblesN; i++) {
     let pebble = models['pebble'+i]
     Matrices.model = m.multiply(m.translate(pebble.center), m.scale(pebble.scale))
     drawModel(pebble)
