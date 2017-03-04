@@ -18,7 +18,7 @@ function timeNow() {
 var fishes = []
 var turnTime = 10
 
-function Fish(x, y, z, lookx, looky, lookz, alive, type, id, scale, lastTurnTime) {
+function Fish(x, y, z, lookx, looky, lookz, alive, type, id, scale, lastTurnTime, triggerReverse, angley) {
   return {
     x,
     y,
@@ -31,15 +31,17 @@ function Fish(x, y, z, lookx, looky, lookz, alive, type, id, scale, lastTurnTime
     id,
     scale,
     lastTurnTime,
+    triggerReverse,
+    angley
     // tempLook,
     // isRotating,
   }
 }
 
 function initFish () {
-  var fish1 = Fish(0, 0, 0, 1, 1, 1, true, 1, 1, [0.7, 0.7, 0.7], timeNow())
-  var fish2 = Fish(3, 3, 3, -1, -1, -1, true, 1, 2, [0.7, 0.7, 0.7], timeNow())
-  var fish3 = Fish(-2, -2, -2, 1, 0, 0, true, 1, 3, [0.7, 0.7, 0.7], timeNow())
+  var fish1 = Fish(0, 0, 0, 1, 1, 1, true, 1, 1, [0.7, 0.7, 0.7], timeNow(), 0, 0)
+  var fish2 = Fish(3, 3, 3, -1, -1, -1, true, 1, 2, [0.7, 0.7, 0.7], timeNow(), 0, 0)
+  var fish3 = Fish(-2, -2, -2, 1, 0, 0, true, 1, 3, [0.7, 0.7, 0.7], timeNow(), 0, 0)
 
   fishes = [fish1, fish2, fish3]
 
@@ -60,7 +62,9 @@ function drawFish() {
     // var phi = Math.atan2(y, Math.sqrt(x*x + z*z))
     // console.log("HIIII", theta, phi)
     Matrices.model = m.scale(mfish.scale)
-    Matrices.model = m.multiply(Matrices.model, m.inverse(m.lookAt([fish.x, fish.y, fish.z], [-fish.lookx, -fish.looky, -fish.lookz], [0, 1, 0])))
+    console.log(fish.angley)
+    Matrices.model = m.multiply(m.rotateY(fish.angley * Math.PI/180), Matrices.model)
+    Matrices.model = m.multiply(m.inverse(m.lookAt([fish.x, fish.y, fish.z], [-fish.lookx, -fish.looky, -fish.lookz], [0, 1, 0])), Matrices.model)
     drawModel(mfish);
   })
 }
@@ -84,6 +88,27 @@ function updateFish() {
     //   }
     // }
     // if(!fish.isRotating) {
+
+      //Wiggling
+      // console.log(fish.angley, fish.triggerReverse)
+      if(fish.angley.toFixed(1) <= 10 && fish.triggerReverse == 1) {
+          fish.angley += 1;
+          if(fish.angley.toFixed(1) >= 10)
+          {
+            fish.angley = 10;
+            fish.triggerReverse = 0;
+          }
+        }
+      if(fish.angley.toFixed(1) >= -10 && fish.triggerReverse == 0) {
+        fish.angley -= 1;
+        if(fish.angley.toFixed(1) <= -10)
+        {
+          fish.angley = -10
+          fish.triggerReverse = 1;
+        }
+      }
+
+
       if (fish.x >= aquariumSize.x - 0.01 || fish.x <= -aquariumSize.x + 0.01) {
         fish.lookx = -1 * fish.lookx
         // fish.isRotating = 1
