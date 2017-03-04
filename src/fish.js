@@ -56,13 +56,14 @@ function cancelFishView() {
 
 function initFish () {
   var fish1 = Fish(0, 0, 0, 1, 1, 1, true, 1, 1, [0.7, 0.7, 0.7], timeNow(), 0, 0)
-  var fish2 = Fish(3, 3, 3, -1, -1, -1, true, 1, 2, [0.7, 0.7, 0.7], timeNow(), 0, 0)
-  var fish3 = Fish(-2, -2, -2, 1, 0, 0, true, 1, 3, [0.7, 0.7, 0.7], timeNow(), 0, 0)
+  var fish2 = Fish(3, 3, 3, -1, -1, -1, true, 2, 2, [0.7, 0.7, 0.7], timeNow(), 0, 0)
+  var fish3 = Fish(-2, -2, -2, 1, 0, 0, true, 3, 3, [0.7, 0.7, 0.7], timeNow(), 0, 0)
+  var fish4 = Fish(-1, 2, -2, 0, 0, 1, true, 4, 4, [0.7, 0.7, 0.7], timeNow(), 0, 0)
 
-  fishes = [fish1, fish2, fish3]
+  fishes = [fish1, fish2, fish3, fish4]
 
   fishes.map(function (fish) {
-    makeModel('fish' + fish.id.toString(), 'assets/fish' + fish.type.toString(), [fish.x, fish.y, fish.z], fish.scale)
+    makeModel('fish' + fish.id.toString(), 'assets/fish' + fish.type, [fish.x, fish.y, fish.z], fish.scale)
   })
 }
 

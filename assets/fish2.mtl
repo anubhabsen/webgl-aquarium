@@ -1,0 +1,40 @@
+# Blender MTL File: 'scardinius.blend'
+# Material Count: 3
+
+newmtl Eyes.001
+Ns 749.999996
+Ka 1.000000 1.000000 1.000000
+Kd 0.004484 0.004484 0.004484
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd assets/textures/fish2.png
+
+newmtl Fish
+Ns 9.803922
+Ka 1.000000 1.000000 1.000000
+Kd 0.125947 0.125947 0.125947
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 1
+map_Kd assets/textures/fish2.png
+map_Ks assets/textures/fish2.png
+map_Ns assets/textures/fish2.png
+
+newmtl Fish-PL
+Ns 9.803922
+Ka 1.000000 1.000000 1.000000
+Kd 0.125947 0.125947 0.125947
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 1
+map_Kd assets/textures/fish2.png
+map_Ks assets/textures/fish2.png
+map_Ns assets/textures/fish2.png
+map_d assets/textures/fish2.png
