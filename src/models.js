@@ -62,16 +62,15 @@ function createModel(name, filedata, mtlstring) //Create object from blender
   var model = models[name];
   var mtllib = parseMtl(mtlstring)
   var vertex_buffer_data = [];
-  var diffuse_buffer_data = [];
-  var specular_buffer_data = [];
-  var ambient_buffer_data = [];
-  var shininess_buffer_data = [];
   var points = [];
 
   var normals = [];
   var normal_buffer_data = [];
 
+  model.vaos = [];
+
   var lines = filedata.split('\n');
+  lines.push('usemtl')
   for (var j=0; j<lines.length; j++){
     var words = lines[j].split(' ');
     if(words[0] == "v"){
@@ -113,89 +112,73 @@ function createModel(name, filedata, mtlstring) //Create object from blender
           normal_buffer_data.push(normals[f].y)
           normal_buffer_data.push(normals[f].z)
         }
-
-        diffuse_buffer_data.push(mtllib[curmtl].diffuse[0])
-        diffuse_buffer_data.push(mtllib[curmtl].diffuse[1])
-        diffuse_buffer_data.push(mtllib[curmtl].diffuse[2])
-
-        specular_buffer_data.push(mtllib[curmtl].specular[0])
-        specular_buffer_data.push(mtllib[curmtl].specular[1])
-        specular_buffer_data.push(mtllib[curmtl].specular[2])
-
-        ambient_buffer_data.push(mtllib[curmtl].ambient[0])
-        ambient_buffer_data.push(mtllib[curmtl].ambient[1])
-        ambient_buffer_data.push(mtllib[curmtl].ambient[2])
-
-        shininess_buffer_data.push(mtllib[curmtl].shininess)
       }
-    } else if (words[0] == 'usemtl') curmtl = words[1]
+    } else if (words[0] == 'usemtl') {
+      let vao = {}
+      vao.numVertex = vertex_buffer_data.length / 3;
+      if (vao.numVertex != 0) {
+        var vertexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertex_buffer_data), gl.STATIC_DRAW);
+        vao.vertexBuffer = vertexBuffer
+
+        var normalBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normal_buffer_data), gl.STATIC_DRAW);
+        vao.normalBuffer = normalBuffer
+        vao.material = mtllib[curmtl]
+
+        model.vaos.push(vao)
+        vertex_buffer_data = []
+        normal_buffer_data = []
+      }
+      curmtl = words[1]
+    }
   }
-
-  var vertexBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertex_buffer_data), gl.STATIC_DRAW);
-  model.vertexBuffer = vertexBuffer
-
-  var normalBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normal_buffer_data), gl.STATIC_DRAW);
-  model.normalBuffer = normalBuffer
-
-  var diffuseBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, diffuseBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(diffuse_buffer_data), gl.STATIC_DRAW);
-  model.diffuseBuffer = diffuseBuffer
-
-  var specularBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, specularBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(specular_buffer_data), gl.STATIC_DRAW);
-  model.specularBuffer = specularBuffer
-
-  var ambientBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, ambientBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(ambient_buffer_data), gl.STATIC_DRAW);
-  model.ambientBuffer = ambientBuffer
-
-  var shininessBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, shininessBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(shininess_buffer_data), gl.STATIC_DRAW);
-  model.shininessBuffer = shininessBuffer
-
-  model.numVertex = vertex_buffer_data.length / 3;
 }
 
 function drawModel (model) {
-  if (!model.vertexBuffer) return;
-
-  gl.bindBuffer(gl.ARRAY_BUFFER, model.vertexBuffer)
-  gl.vertexAttribPointer(program.positionAttribute, 3, gl.FLOAT, false, 0, 0);
-
-  gl.bindBuffer(gl.ARRAY_BUFFER, model.normalBuffer)
-  gl.vertexAttribPointer(program.normalAttribute, 3, gl.FLOAT, false, 0, 0);
-
-  gl.bindBuffer(gl.ARRAY_BUFFER, model.diffuseBuffer)
-  gl.vertexAttribPointer(program.diffuseAttribute, 3, gl.FLOAT, false, 0, 0);
-
-  gl.bindBuffer(gl.ARRAY_BUFFER, model.specularBuffer)
-  gl.vertexAttribPointer(program.specularAttribute, 3, gl.FLOAT, false, 0, 0);
-
-  gl.bindBuffer(gl.ARRAY_BUFFER, model.ambientBuffer)
-  gl.vertexAttribPointer(program.ambientAttribute, 3, gl.FLOAT, false, 0, 0);
-
-  gl.bindBuffer(gl.ARRAY_BUFFER, model.shininessBuffer)
-  gl.vertexAttribPointer(program.shininessAttribute, 1, gl.FLOAT, false, 0, 0);
+  if (!model.vaos) return
 
   gl.uniformMatrix4fv(gl.getUniformLocation(program, "model"), false, Matrices.model);
   gl.uniformMatrix4fv(gl.getUniformLocation(program, "modelInv"), false, m.inverse(Matrices.model));
 
-  // draw
-  gl.drawArrays(gl.TRIANGLES, 0, model.numVertex);
+  model.vaos.map(drawVAO)
 }
 
 function drawLight(model) {
   gl.uniform1i(gl.getUniformLocation(program, "isLight"), 1);
   drawModel(model);
   gl.uniform1i(gl.getUniformLocation(program, "isLight"), 0);
+}
+
+function drawVAO(vao) {
+  if (!vao.vertexBuffer) return;
+
+  loadMaterial(vao.material)
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, vao.vertexBuffer)
+  gl.vertexAttribPointer(program.positionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, vao.normalBuffer)
+  gl.vertexAttribPointer(program.normalAttribute, 3, gl.FLOAT, false, 0, 0);
+
+  // draw
+  gl.drawArrays(gl.TRIANGLES, 0, vao.numVertex);
+}
+
+function loadMaterial(material) {
+  if (!material) material = {
+    ambient: [1, 1, 1],
+    diffuse: [1, 1, 1],
+    specular: [1, 1, 1],
+    shininess: 0,
+  };
+  // Set material properties
+  gl.uniform3f(gl.getUniformLocation(program, "material.ambient"),   material.ambient[0], material.ambient[1], material.ambient[2]);
+  gl.uniform3f(gl.getUniformLocation(program, "material.diffuse"),   material.diffuse[0], material.diffuse[1], material.diffuse[2]);
+  gl.uniform3f(gl.getUniformLocation(program, "material.specular"),  material.specular[0], material.specular[1], material.specular[2]);
+  gl.uniform1f(gl.getUniformLocation(program, "material.shininess"), material.shininess);
 }
 
 module.exports = {
