@@ -76,6 +76,10 @@ var bubbles = {
   num: 0
 }
 
+var foodData = {
+  active: false,
+}
+
 var Camera = {
   x: 12,
   y: 12,
@@ -119,6 +123,14 @@ function Initialize()
 
   window.canvas.onmousemove = updateCameraTarget
 
+  window.canvas.onclick = function () {
+    if (!foodData.active) {
+      models.food['center'][0] = Math.floor(Math.random() * (2*aquariumSize.x + 1 - 1.6) - aquariumSize.x)
+      models.food['center'][2] = Math.floor(Math.random() * (2*aquariumSize.z + 1 - 1.6) - aquariumSize.z)
+      foodData.active = true;
+    }
+  }
+
   window.gl = canvas.getContext("experimental-webgl");
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
@@ -143,7 +155,14 @@ function Initialize()
 
   makeModel('light', 'assets/cube', [28, 25, 0], [1, 1, 4])
 
-  tick();
+  makeModel('fish', 'assets/fish', [0, 0, 0])
+  makeModel('xaxis', 'assets/cube', [1, 0, 0], [1, 0.1, 0.1])
+  makeModel('yaxis', 'assets/cube', [0, 1, 0], [0.1, 1, 0.1])
+  makeModel('aquarium', 'assets/aquarium', [0, 0, 0], [aquariumSize.x, aquariumSize.y, aquariumSize.z], 0.5)
+  makeModel('weed', 'assets/weed', [- aquariumSize.x, - aquariumSize.y, 1], [0.05, 0.05, 0.05])
+  makeModel('food', 'assets/food', [0, 0, 0], [1, 1, 1])
+
+  tick()
 }
 window.Initialize = Initialize
 
@@ -156,6 +175,7 @@ function animate() {
   tickFish();
   updateBubbles();
   tickWeed();
+  updateFood();
   lastTime = timeNow;
 }
 
@@ -171,6 +191,21 @@ function updateBubbles() {
       bubbles.activeBubbles.splice(i, 1)
     }
   })
+}
+
+function updateFood () {
+  if (foodData.active) {
+    if (models.food['center'][1] >= (-aquariumSize.y + 1)) {
+      models.food['center'][1] -= 0.2;
+    }
+    else {
+      models.food['center'][1] = aquariumSize.y - 1
+      foodData.active = false
+    }
+  }
+  else {
+    models.food['center'][1] = aquariumSize.y - 1
+  }
 }
 
 function tickWeed() {
@@ -327,7 +362,7 @@ function tickFish()
 
 function drawScene() {
   var { fish, aquarium } = models;
-  var { weed, wall, light, rock } = models;
+  var { weed, wall, light, rock, food } = models;
   //console.log(fishRotationY, fishRotationX);
   if(!weedStart)
   {
@@ -379,6 +414,11 @@ function drawScene() {
 
   Matrices.model = m.multiply(m.translate(light.center), m.scale(light.scale))
   drawLight(light)
+
+  if (foodData.active) {
+    Matrices.model = m.multiply(m.translate(food.center), m.scale(food.scale))
+    drawModel(food)
+  }
 
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.ONE, gl.ONE);
