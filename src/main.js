@@ -77,6 +77,8 @@ var bubbles = {
 }
 
 var foodData = {
+  timeBeforeShrink: 3,
+  startTime: 0,
   active: false,
 }
 
@@ -128,6 +130,7 @@ function Initialize()
       models.food['center'][0] = Math.floor(Math.random() * (2*aquariumSize.x + 1 - 1.6) - aquariumSize.x)
       models.food['center'][2] = Math.floor(Math.random() * (2*aquariumSize.z + 1 - 1.6) - aquariumSize.z)
       foodData.active = true;
+      foodData.startTime = new Date().getTime() / 1000.0
     }
   }
 
@@ -199,8 +202,14 @@ function updateFood () {
       models.food['center'][1] -= 0.2;
     }
     else {
-      models.food['center'][1] = aquariumSize.y - 1
-      foodData.active = false
+      var time = new Date().getTime() / 1000.0
+      if (time - foodData.startTime <= foodData.timeBeforeShrink) {
+        for (var i = 0; i <= 2; i++) models.food['scale'][i] -= 0.008
+      }
+      else {
+        for (var j = 0; j <= 2; j++) models.food['scale'][j] = 1
+        foodData.active = false
+      }
     }
   }
   else {
