@@ -406,7 +406,7 @@ function drawScene() {
 
   Matrices.model = m.multiply(m.translate(rock.center), m.scale(rock.scale))
   drawModel(rock)
-  
+
   Matrices.model = m.scale(table.scale)
   //Matrices.model = m.multiply(Matrices.model, m.rotateZ(10*Math.PI/180))
   //Matrices.model = m.multiply(Matrices.model, m.rotateX(1*Math.PI/180))

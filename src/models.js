@@ -63,6 +63,12 @@ function createModel(name, filedata, mtlstring) //Create object from blender
   var mtllib = parseMtl(mtlstring)
   var vertex_buffer_data = [];
   var points = [];
+  var minX = 1000000
+  var maxX = -1000000
+  var minY = 1000000
+  var maxY = -1000000
+  var minZ = 1000000
+  var maxZ = -1000000
 
   var normals = [];
   var normal_buffer_data = [];
@@ -76,8 +82,26 @@ function createModel(name, filedata, mtlstring) //Create object from blender
     if(words[0] == "v"){
       var cur_point = {};
       cur_point['x']=parseFloat(words[1]);
+      if(cur_point['x']>maxX){
+        maxX = cur_point['x']
+      }
+      if(cur_point['x']<minX){
+        minX = cur_point['x']
+      }
       cur_point['y']=parseFloat(words[2]);
+      if(cur_point['y']>maxY){
+        maxY = cur_point['y']
+      }
+      if(cur_point['y']<minY){
+        minY = cur_point['y']
+      }
       cur_point['z']=parseFloat(words[3]);
+      if(cur_point['z']>maxZ){
+        maxZ = cur_point['z']
+      }
+      if(cur_point['z']<minZ){
+        minZ = cur_point['z']
+      }
       //console.log(words);
       points.push(cur_point);
     } else if (words[0] == "vn") {
@@ -89,6 +113,12 @@ function createModel(name, filedata, mtlstring) //Create object from blender
       normals.push(cur_point);
     }
   }
+  model.minX = minX
+  model.maxX = maxX
+  model.minY = minY
+  model.maxY = maxY
+  model.minZ = minZ
+  model.maxZ = maxZ
   //console.log(points);
   // let lines = filedata.split('\n');
   var curmtl = ''
