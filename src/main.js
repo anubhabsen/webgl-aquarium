@@ -484,7 +484,7 @@ function updateCamera() {
   lightColor[1] = 1;
   lightColor[2] = 1;
   var diffuseColor = vec.multiplyScalar(lightColor, 0.5); // Decrease the influence
-  var ambientColor = vec.multiplyScalar(diffuseColor, 0.2); // Low influence
+  var ambientColor = vec.multiplyScalar(diffuseColor, 1); // Low influence
   gl.uniform3f(gl.getUniformLocation(program, "light.ambient"),  ambientColor[0], ambientColor[1], ambientColor[2]);
   gl.uniform3f(gl.getUniformLocation(program, "light.diffuse"),  diffuseColor[0], diffuseColor[1], diffuseColor[2]);
   gl.uniform3f(gl.getUniformLocation(program, "light.specular"), 1.0, 1.0, 1.0);

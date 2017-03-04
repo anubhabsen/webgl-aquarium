@@ -3,8 +3,8 @@
 
 newmtl Material
 Ns 1024
-Ka 2 2 2
-Kd 2 2 2
+Ka 1 1 1
+Kd 1 1 1
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.000000
@@ -14,8 +14,8 @@ illum 2
 
 newmtl Material_ceil.jpg
 Ns 1024
-Ka 2 2 2
-Kd 2 2 2
+Ka 1 1 1
+Kd 1 1 1
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.000000
@@ -25,8 +25,8 @@ illum 2
 
 newmtl Material_images.duckduckgo.com.jpg
 Ns 1024
-Ka 2 2 2
-Kd 2 2 2
+Ka 1 1 1
+Kd 1 1 1
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.000000
