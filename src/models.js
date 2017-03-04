@@ -103,6 +103,7 @@ function createModel(name, filedata, mtlstring) //Create object from blender
   model.vaos = [];
 
   var lines = filedata.split('\n');
+  lines = lines.map(s => s.trim())
   lines.push('usemtl')
   for (var j=0; j<lines.length; j++){
     var words = lines[j].split(' ');
