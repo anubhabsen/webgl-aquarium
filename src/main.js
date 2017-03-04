@@ -359,6 +359,9 @@ function drawScene() {
   Matrices.model = m.multiply(m.translate(wall.center), m.scale(wall.scale))
   drawModel(wall)
 
+  Matrices.model = m.multiply(m.translate(light.center), m.scale(light.scale))
+  drawLight(light)
+
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.ONE, gl.ONE);
   gl.enable(gl.CULL_FACE);
@@ -366,9 +369,6 @@ function drawScene() {
   drawModel(aquarium)
   gl.disable(gl.CULL_FACE);
   gl.disable(gl.BLEND);
-
-  Matrices.model = m.multiply(m.translate(light.center), m.scale(light.scale))
-  drawLight(light)
 }
 
 function updateCamera() {
