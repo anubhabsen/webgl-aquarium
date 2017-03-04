@@ -1,4 +1,5 @@
 var m = require('./matrix')
+var mousetrap = require('mousetrap')
 var { makeModel, drawModel } = require('./models')
 
 var aquariumSize = {
@@ -50,6 +51,10 @@ function initFish () {
   })
 }
 
+mousetrap.bind('k', function () {
+  fishes.splice(0, 1);
+})
+
 function drawFish() {
   fishes.map(function (fish) {
     var mfish = models['fish' + fish.id.toString()]
@@ -62,7 +67,6 @@ function drawFish() {
     // var phi = Math.atan2(y, Math.sqrt(x*x + z*z))
     // console.log("HIIII", theta, phi)
     Matrices.model = m.scale(mfish.scale)
-    console.log(fish.angley)
     Matrices.model = m.multiply(m.rotateY(fish.angley * Math.PI/180), Matrices.model)
     Matrices.model = m.multiply(m.inverse(m.lookAt([fish.x, fish.y, fish.z], [-fish.lookx, -fish.looky, -fish.lookz], [0, 1, 0])), Matrices.model)
     drawModel(mfish);
