@@ -2,13 +2,11 @@ var shaders = require('./shaders')
 var { drawModel, makeModel, drawLight } = require('./models')
 var m = require('./matrix')
 var vec = require('./vector')
-var fishX=0.05,fishY=0, fishTwitch=0;
-var isRotating = 0;
-var fishRotationX = 0,fishRotationY = 0;
-var posX = 1, posY = -1, weedStart = 0;
-var nextAngleRotation = 90; //Math.PI/2;
-var movepositivex = 1, isMovingX=1, incrementX= 0, incrementY = 0, triggerReverse = 1;
+var weedStart = 0;
+var movepositivex = 1;
 var pebblesN = 6;
+
+var { initFish, drawFish, updateFish, aquariumSize } = require('./fish')
 
 
 var mousetrap = require('mousetrap')
@@ -63,12 +61,6 @@ function updateCameraTarget(e) {
   Camera.lookx = Camera.x + dx
   Camera.looky = Camera.y + dy
   Camera.lookz = Camera.z + dz
-}
-
-var aquariumSize = {
-  x: 10,
-  y: 7,
-  z: 10,
 }
 
 var bubbles = {
@@ -168,6 +160,8 @@ function Initialize()
 
   makeModel('cubetex', 'assets/cubetex', [15, 10, 5])
 
+  initFish()
+
   tick();
 }
 window.Initialize = Initialize
@@ -178,10 +172,10 @@ function animate() {
   if (lastTime == 0) { lastTime = timeNow; return; }
   // var d = (timeNow - lastTime) / 50;
   updateCamera();
-  tickFish();
   updateBubbles();
   tickWeed();
   updateFood();
+  updateFish();
   lastTime = timeNow;
 }
 
@@ -240,140 +234,8 @@ function tickWeed() {
   }
 }
 
-function tickFish()
-{
-  var { fish } = models;
-  if(!isRotating)
-  {
-    if(isMovingX)
-    {
-      //incrementX = 0;
-      if(incrementY <= 1 && triggerReverse == 1)
-      {
-        incrementY += 0.1;
-        if(incrementY >=1)
-        {
-          triggerReverse *= -1;
-        }
-      }
-      else if(incrementY >=-1 && triggerReverse == -1)
-      {
-        incrementY -=0.1;
-        if(incrementY<=-1)
-        {
-          triggerReverse*=-1;
-        }
-      }
-    }
-    else
-    {
-      incrementX = 0;
-      if(incrementY <= 1 && triggerReverse == 1)
-      {
-        incrementY += 0.1;
-        if(incrementY >=1)
-        {
-          triggerReverse *= -1;
-        }
-      }
-      else if(incrementY >=-1 && triggerReverse == -1)
-      {
-        incrementY -=0.1;
-        if(incrementY<=-1)
-        {
-          triggerReverse*=-1.0;
-        }
-      }
-    }
-    //fishRotationX += incrementX;
-    fishRotationY += incrementY;
-    if(posX==1)
-    {
-      if(fish['center'][0]<=6.0)
-      {
-        fish['center'][0] += posX * fishX;
-        if(fish['center'][0]>=6.0)
-        {
-          isRotating = 1;
-        }
-      }
-    }
-    else
-    {
-      if(fish['center'][0]>=-6.0)
-      {
-        fish['center'][0] += posX * fishX;
-        if(fish['center'][0] <=-6.0)
-        {
-          isRotating = 1;
-        }
-      }
-    }
-    if(posY==1)
-    {
-      // console.log(fishY);
-      if(fish['center'][2]<=6.0)
-      {
-        fish['center'][2] += posY * fishY;
-        if(fish['center'][2]>=6.0)
-        {
-          isRotating = 2;
-        }
-      }
-    }
-    else
-    {
-      if(fish['center'][2]>=-6.0)
-      {
-        fish['center'][2] += posY * fishY;
-        if(fish['center'][2]<=-6.0)
-        {
-          isRotating = 2;
-        }
-      }
-    }
-  }
-  else
-  {
-    if(isRotating==1)
-    {
-      fishX = 0.050;
-      fishY = 0.050;
-      fish['center'][0] += posX * fishX;
-      fish['center'][2] += posY * fishY;
-      fishRotationY += 2.0;
-      if(fishRotationY>=nextAngleRotation)
-      {
-        isRotating = 0;
-        fishX = 0;
-        fishY = 0.05;
-        fishRotationY= nextAngleRotation;
-        nextAngleRotation += 90;
-        posX *= -1;
-      }
-    }
-    else if(isRotating == 2)
-    {
-      fishX = 0.042;
-      fishY = 0.042;
-      fish['center'][0] += posX * fishX;
-      fish['center'][2] += posY * fishY;
-      fishRotationY += 2.0;
-      if(fishRotationY>=nextAngleRotation)
-      {
-        isRotating = 0;
-        fishX = 0.05;
-        fishY = 0;
-        fishRotationY= nextAngleRotation;
-        nextAngleRotation += 90;
-        posY *= -1;
-      }
-    }
-  }
-}
-
 function drawScene() {
-  var { fish, aquarium } = models;
+  var { aquarium } = models;
   var { weed, wall, light, rock, food, table } = models;
   var { cubetex } = models
   //console.log(fishRotationY, fishRotationX);
@@ -384,7 +246,6 @@ function drawScene() {
     weed.anglez = 0
     weedStart = 1;
   }
-  var transform;
 
   gl.viewport(0, 0, canvas.width, canvas.height);
   gl.clearColor(0.1, 0.1, 0.1, 1.0);
@@ -396,13 +257,6 @@ function drawScene() {
 
   Matrices.model = m.multiply(m.translate(cubetex.center), m.scale(cubetex.scale))
   drawModel(cubetex)
-
-  Matrices.model = m.scale(fish.scale)
-  Matrices.model = m.multiply(Matrices.model, m.rotateY(90*Math.PI/180))
-  transform = m.multiply(m.rotateY(fishRotationY*Math.PI/180), m.rotateX(fishRotationX * Math.PI/180));
-  Matrices.model = m.multiply(transform, Matrices.model)
-  Matrices.model = m.multiply(m.translate(fish.center), Matrices.model)
-  drawModel(fish);
 
   Matrices.model = m.scale(weed.scale)
   Matrices.model = m.multiply(Matrices.model, m.rotateX(weed.anglex * Math.PI / 180));
@@ -441,6 +295,8 @@ function drawScene() {
     Matrices.model = m.multiply(m.translate(food.center), m.scale(food.scale))
     drawModel(food)
   }
+
+  drawFish()
 
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.ONE, gl.ONE);
