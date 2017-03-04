@@ -1,0 +1,35 @@
+# Blender MTL File: 'None'
+# Material Count: 3
+
+newmtl Material
+Ns 1024
+Ka 2 2 2
+Kd 2 2 2
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+map_Kd assets/textures/metal.jpg
+illum 2
+
+newmtl Material_ceil.jpg
+Ns 1024
+Ka 2 2 2
+Kd 2 2 2
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+map_Kd assets/textures/metal.jpg
+illum 2
+
+newmtl Material_images.duckduckgo.com.jpg
+Ns 1024
+Ka 2 2 2
+Kd 2 2 2
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+map_Kd assets/textures/metal.jpg
+illum 2
