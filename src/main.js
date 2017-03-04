@@ -83,8 +83,8 @@ var foodData = {
 }
 
 var Camera = {
-  x: 12,
-  y: 12,
+  x: 19,
+  y: 9,
   z: 12,
   lookx: 0,
   looky: 0,
@@ -168,6 +168,8 @@ function Initialize()
   tick();
 }
 window.Initialize = Initialize
+
+window.Camera = Camera
 
 var lastTime = 0;
 function animate() {
