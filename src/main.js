@@ -444,8 +444,9 @@ function drawScene() {
 
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.ONE, gl.ONE);
-  if(Camera.x <= 1.0 && Camera.x >= -1.0 && Camera.y <= 1.0 && Camera.y >= -1.0 && Camera.z <= 1.0 && Camera.z >= -1.0)
-  {
+  if (Camera.x > aquariumSize.x || Camera.x < -aquariumSize.x ||
+      Camera.y > aquariumSize.y || Camera.y < -aquariumSize.y ||
+      Camera.z > aquariumSize.z || Camera.z < -aquariumSize.z) {
     gl.enable(gl.CULL_FACE);
   }
   Matrices.model = m.multiply(m.translate(aquarium.center), m.scale(aquarium.scale))
