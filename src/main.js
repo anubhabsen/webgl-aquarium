@@ -117,6 +117,7 @@ function resizeCanvas() {
 
 function Initialize()
 {
+  document.getElementById('backaudio').play()
   window.canvas = document.getElementById("canvas");
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas)
