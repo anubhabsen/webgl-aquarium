@@ -10,5 +10,5 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 0.000000
 illum 0
-map_Kd M:/Downloads/Blendswap/Foliage_Bushes01_DiffuseMask.tga
+map_Kd assets/textures/leaf.jpg
 map_d M:/Downloads/Blendswap/Foliage_Bushes01_DiffuseMask.tga

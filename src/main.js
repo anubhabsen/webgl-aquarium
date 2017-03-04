@@ -159,7 +159,7 @@ function Initialize()
   makeModel('sand', 'assets/sand', [0, -aquariumSize.y-1, 0], [aquariumSize.x, -1, aquariumSize.z])
   makeModel('metal', 'assets/metal', [0, aquariumSize.y+0.2, 0], [aquariumSize.x, 0.2, aquariumSize.z])
   makeModel('table', 'assets/table', [0, -(26-aquariumSize.y), 0], [1.5*aquariumSize.x, (28-aquariumSize.y), 2.5*aquariumSize.z])
-  makeModel('weed', 'assets/weed', [- aquariumSize.x, - aquariumSize.y, 1], [0.05, 0.05, 0.05])
+  makeModel('weed', 'assets/weed', [- aquariumSize.x+3.2, - aquariumSize.y, 1], [0.04, 0.04, 0.04])
   makeModel('food', 'assets/food', [0, 0, 0], [1, 1, 1])
 
   makeModel('cubetex', 'assets/cubetex', [15, 10, 5])
