@@ -215,6 +215,8 @@ function updateEgg () {
       else {
         for (var j = 0; j <= 2; j++) models.egg['scale'][j] = 1
         eggData.active = false
+        var fish5 = Fish(models.egg['center'][0], models.egg['center'][1] - 1, models.egg['center'][2], -1, -1, -1, true, 2, 2, [0.1, 0.1, 0.1], timeNow(), 0, 0);
+        fishes.push(fish5);
       }
     }
   }
