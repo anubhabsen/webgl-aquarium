@@ -6,8 +6,8 @@ var weedStart = 0;
 var movepositivex = 1;
 var pebblesN = 15;
 
-var { initFish, drawFish, updateFish, cycleFish, cancelFishView, aquariumSize } = require('./fish')
-
+var { initFish, drawFish, updateFish, cycleFish, cancelFishView, fishMoveTowardsFood, aquariumSize } = require('./fish')
+var fishMovingTowardsFood = false
 
 var mousetrap = require('mousetrap')
 
@@ -138,6 +138,8 @@ function Initialize()
       models.food['center'][2] = Math.floor(Math.random() * (2*aquariumSize.z + 1 - 1.6) - aquariumSize.z)
       foodData.active = true;
       foodData.startTime = new Date().getTime() / 1000.0
+      fishMovingTowardsFood = true
+      fishMoveTowardsFood()
     }
   }
 
@@ -219,6 +221,9 @@ function updateBubbles() {
 
 function updateFood () {
   if (foodData.active) {
+    if (fishMovingTowardsFood) {
+      fishMoveTowardsFood(models.food['center'][0], models.food['center'][1], models.food['center'][2])
+    }
     if (models.food['center'][1] >= (-aquariumSize.y + 1)) {
       models.food['center'][1] -= 0.2;
     }
@@ -229,6 +234,7 @@ function updateFood () {
       }
       else {
         for (var j = 0; j <= 2; j++) models.food['scale'][j] = 1
+        fishMovingTowardsFood = false
         foodData.active = false
       }
     }

@@ -67,6 +67,14 @@ function initFish () {
   })
 }
 
+function fishMoveTowardsFood(foodx, foody, foodz) {
+  fishes.map(function (fish) {
+    fish.lookx = foodx
+    fish.looky = foody
+    fish.lookz = foodz
+  })
+}
+
 mousetrap.bind('k', function () {
   fishes.splice(0, 1);
 })
@@ -177,5 +185,6 @@ module.exports = {
   updateFish,
   cycleFish,
   cancelFishView,
+  fishMoveTowardsFood,
   aquariumSize,
 }
