@@ -29,6 +29,7 @@ mousetrap.bind('s', function () {
   Camera.x -= 0.8 * xd / magnitude
   Camera.y -= 0.8 * yd / magnitude
   Camera.z -= 0.8 * zd / magnitude
+  updateCameraTarget()
 })
 
 mousetrap.bind('w', function() {
@@ -39,7 +40,30 @@ mousetrap.bind('w', function() {
   Camera.x += 0.8 * xd / magnitude
   Camera.y += 0.8 * yd / magnitude
   Camera.z += 0.8 * zd / magnitude
+  updateCameraTarget()
 })
+
+function updateCameraTarget(e) {
+  if (!Camera.mouseUpdate) return;
+  var rect = window.canvas.getBoundingClientRect();
+  if (e) {
+    Camera.mouseX = e.clientX;
+    Camera.mouseY = e.clientY;
+  }
+  var x = Camera.mouseX - rect.left, y = Camera.mouseY - rect.top
+  x = x - (window.canvas.width / 2.0), y = (window.canvas.height / 2.0) - y
+
+  var theta = (-180.0 / window.canvas.height) * y + 90.0
+  var phi = (360.0 / window.canvas.width) * x + 180.0
+
+  var dx = 1 * Math.sin(toRadians(theta)) * Math.cos(toRadians(phi))
+  var dy = 1 * Math.cos(toRadians(theta))
+  var dz = 1 * Math.sin(toRadians(theta)) * Math.sin(toRadians(phi))
+
+  Camera.lookx = Camera.x + dx
+  Camera.looky = Camera.y + dy
+  Camera.lookz = Camera.z + dz
+}
 
 var aquariumSize = {
   x: 10,
@@ -61,6 +85,8 @@ var Camera = {
   lookz: 0,
   mouseUpdate: true,
   fishLens: false,
+  mouseX: 0,
+  mouseY: 0,
 }
 
 function toRadians (angle) {
@@ -91,23 +117,7 @@ function Initialize()
     return false
   }
 
-  window.canvas.onmousemove = function(e) {
-    if (!Camera.mouseUpdate) return;
-    var rect = window.canvas.getBoundingClientRect();
-    var x = e.clientX - rect.left, y = e.clientY - rect.top
-    x = x - (window.canvas.width / 2.0), y = (window.canvas.height / 2.0) - y
-
-    var theta = (-180.0 / window.canvas.height) * y + 90.0
-    var phi = (360.0 / window.canvas.width) * x + 180.0
-
-    var dx = 1 * Math.sin(toRadians(theta)) * Math.cos(toRadians(phi))
-    var dy = 1 * Math.cos(toRadians(theta))
-    var dz = 1 * Math.sin(toRadians(theta)) * Math.sin(toRadians(phi))
-
-    Camera.lookx = Camera.x + dx
-    Camera.looky = Camera.y + dy
-    Camera.lookz = Camera.z + dz
-  }
+  window.canvas.onmousemove = updateCameraTarget
 
   window.gl = canvas.getContext("experimental-webgl");
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
