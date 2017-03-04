@@ -93,6 +93,7 @@ function updateFish() {
       // console.log(fish.angley, fish.triggerReverse)
       if(fish.angley.toFixed(1) <= 10 && fish.triggerReverse == 1) {
           fish.angley += 1;
+          fish.angley += Math.random()/2;
           if(fish.angley.toFixed(1) >= 10)
           {
             fish.angley = 10;
@@ -101,6 +102,7 @@ function updateFish() {
         }
       if(fish.angley.toFixed(1) >= -10 && fish.triggerReverse == 0) {
         fish.angley -= 1;
+        fish.angley -= Math.random()/2;
         if(fish.angley.toFixed(1) <= -10)
         {
           fish.angley = -10
@@ -109,17 +111,17 @@ function updateFish() {
       }
 
 
-      if (fish.x >= aquariumSize.x - 0.01 || fish.x <= -aquariumSize.x + 0.01) {
+      if (fish.x >= aquariumSize.x - 1.2 || fish.x <= -aquariumSize.x + 1.2) {
         fish.lookx = -1 * fish.lookx
         // fish.isRotating = 1
         // fish.tempLook = fish.lookx
       }
-      if (fish.y >= aquariumSize.y - 0.01 || fish.y <= -aquariumSize.y + 0.01) {
+      if (fish.y >= aquariumSize.y - 1.2 || fish.y <= -aquariumSize.y + 1.2) {
         fish.looky = -1 * fish.looky
         // fish.isRotating = 2
         // fish.tempLook = fish.looky
       }
-      if (fish.z >= aquariumSize.z - 0.01 || fish.z <= -aquariumSize.z + 0.01) {
+      if (fish.z >= aquariumSize.z - 1.2 || fish.z <= -aquariumSize.z + 1.2) {
         fish.lookz = -1 * fish.lookz
         // fish.isRotating = 3
         // fish.tempLook = fish.lookz
