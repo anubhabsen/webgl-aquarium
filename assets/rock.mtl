@@ -1,0 +1,15 @@
+# Blender MTL File: 'BSwap_RockForms_02.blend'
+# Material Count: 1
+
+newmtl RockForm03
+Ns 174.509804
+Ka 1.000000 1.000000 1.000000
+Kd 0.281009 0.281009 0.281009
+Ks 0.638270 0.638270 0.638270
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd M:/Blender/RockForm03_Diffuse1.png
+map_Bump M:/Blender/RockForm03_Normal.tga
+map_Ks M:/Blender/RockForm03_Diffuse1.png

@@ -1,3 +1,5 @@
+var shaders = {}
+
 function compileShader(gl, shaderSource, shaderType) {
   // Create the shader object
   var shader = gl.createShader(shaderType);
@@ -18,33 +20,59 @@ function compileShader(gl, shaderSource, shaderType) {
   return shader;
 }
 
-function createShaderFromScriptTag(gl, scriptId, opt_shaderType) {
-  // look up the script tag by id.
-  var shaderScript = document.getElementById(scriptId);
-  if (!shaderScript) {
-    throw("*** Error: unknown script element" + scriptId);
+function createProgram(gl, name, vertexShader, fragmentShader) {
+  // create a program.
+  var progra = gl.createProgram();
+
+  // attach the shaders.
+  gl.attachShader(progra, vertexShader);
+  gl.attachShader(progra, fragmentShader);
+
+  // link the program.
+  gl.linkProgram(progra);
+
+  gl.deleteShader(vertexShader)
+  gl.deleteShader(fragmentShader)
+
+  // Check if it linked.
+  var success = gl.getProgramParameter(progra, gl.LINK_STATUS);
+  if (!success) {
+    // something went wrong with the link
+    throw ("program filed to link:" + gl.getProgramInfoLog (progra));
   }
 
-  // extract the contents of the script tag.
-  var shaderSource = shaderScript.text;
+  window.program = progra;
+  program.positionAttribute = gl.getAttribLocation(program, "a_position");
+  gl.enableVertexAttribArray(program.vertexAttribute);
 
-  // If we didn't pass in a type, use the 'type' from
-  // the script tag.
-  if (!opt_shaderType) {
-    if (shaderScript.type == "x-shader/x-vertex") {
-      opt_shaderType = gl.VERTEX_SHADER;
-    }
-    else if (shaderScript.type == "x-shader/x-fragment") {
-      opt_shaderType = gl.FRAGMENT_SHADER;
-    }
-    else if (!opt_shaderType) {
-      throw("*** Error: shader type not set");
-    }
-  }
-  return compileShader(gl, shaderSource, opt_shaderType);
+  program.normalAttribute = gl.getAttribLocation(program, "a_normal");
+  gl.enableVertexAttribArray(program.normalAttribute);
+
+  shaders[name] = progra;
+}
+
+function openFile(name, filename){
+  $.get(filename + '.vs', function (vxShaderData) {
+    var vxShader = compileShader(gl, vxShaderData, gl.VERTEX_SHADER)
+    $.get(filename + '.frag', function (fragShaderData) {
+      console.log(vxShaderData, fragShaderData)
+      var fragShader = compileShader(gl, fragShaderData, gl.FRAGMENT_SHADER)
+      createProgram(gl, name, vxShader, fragShader)
+    }, 'text');
+  }, 'text');
+}
+
+function createShader(shadername) {
+  openFile(shadername, 'shaders/' + shadername)
+}
+
+function useShader(shadername) {
+  window.program = shaders[shadername]
+  gl.useProgram(window.program);
 }
 
 module.exports = {
   compileShader,
-  createShaderFromScriptTag,
+  createShader,
+  useShader,
 }

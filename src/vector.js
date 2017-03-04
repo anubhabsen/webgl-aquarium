@@ -26,6 +26,10 @@ function normalize([x, y, z]) {
   return [x/t, y/t, z/t]
 }
 
+function multiplyScalar([x, y, z], c) {
+  return [x*c, y*c, z*c]
+}
+
 module.exports = {
   dot,
   cross,
@@ -33,4 +37,5 @@ module.exports = {
   subtract,
   abs,
   normalize,
+  multiplyScalar,
 }
