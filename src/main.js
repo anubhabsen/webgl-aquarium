@@ -140,10 +140,6 @@ function Initialize()
   // setup a GLSL program
   shaders.createShader('material')
 
-  makeModel('fish', 'assets/fish', [0, 0, 0])
-
-  makeModel('aquarium', 'assets/aquarium', [0, 0, 0], [aquariumSize.x, aquariumSize.y, aquariumSize.z])
-  makeModel('weed', 'assets/weed', [- aquariumSize.x, -aquariumSize.y, 1], [0.05, 0.05, 0.05])
   // makeModel('table','assets/Table',[0, -aquariumSize.y*2.7, -2],[12,8,10])
 
   for (let i = 0,temp=0; i<pebblesN; i++) {
@@ -162,7 +158,8 @@ function Initialize()
   makeModel('fish', 'assets/fish', [0, 0, 0])
   makeModel('xaxis', 'assets/cube', [1, 0, 0], [1, 0.1, 0.1])
   makeModel('yaxis', 'assets/cube', [0, 1, 0], [0.1, 1, 0.1])
-  makeModel('aquarium', 'assets/aquarium', [0, 0, 0], [aquariumSize.x, aquariumSize.y, aquariumSize.z], 0.5)
+  makeModel('aquarium', 'assets/aquarium', [0, 0, 0], [aquariumSize.x, aquariumSize.y, aquariumSize.z])
+  makeModel('sand', 'assets/sand', [0, -aquariumSize.y-1, 0], [aquariumSize.x, -1, aquariumSize.z])
   makeModel('weed', 'assets/weed', [- aquariumSize.x, - aquariumSize.y, 1], [0.05, 0.05, 0.05])
   makeModel('food', 'assets/food', [0, 0, 0], [1, 1, 1])
 
@@ -373,7 +370,7 @@ function tickFish()
 }
 
 function drawScene() {
-  var { fish, aquarium } = models;
+  var { fish, aquarium, sand } = models;
   var { weed, wall, light, rock, food } = models;
   var { cubetex } = models
   //console.log(fishRotationY, fishRotationX);
@@ -394,8 +391,8 @@ function drawScene() {
   gl.enable(gl.DEPTH_TEST);
   gl.depthFunc(gl.LEQUAL);
 
-  Matrices.model = m.multiply(m.translate(cubetex.center), m.scale(cubetex.scale))
-  drawModel(cubetex)
+  // Matrices.model = m.multiply(m.translate(cubetex.center), m.scale(cubetex.scale))
+  // drawModel(cubetex)
 
   Matrices.model = m.scale(fish.scale)
   Matrices.model = m.multiply(Matrices.model, m.rotateY(90*Math.PI/180))
@@ -412,6 +409,9 @@ function drawScene() {
 
   Matrices.model = m.multiply(m.translate(rock.center), m.scale(rock.scale))
   drawModel(rock)
+
+  Matrices.model = m.multiply(m.translate(sand.center), m.scale(sand.scale))
+  drawModel(sand)
 
   // Matrices.model = m.scale(table.scale)
   // //Matrices.model = m.multiply(Matrices.model, m.rotateZ(10*Math.PI/180))
