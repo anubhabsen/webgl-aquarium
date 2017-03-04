@@ -364,7 +364,10 @@ function drawScene() {
 
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.ONE, gl.ONE);
-  gl.enable(gl.CULL_FACE);
+  if(Camera.x <= 1.0 && Camera.x >= -1.0 && Camera.y <= 1.0 && Camera.y >= -1.0 && Camera.z <= 1.0 && Camera.z >= -1.0)
+  {
+    gl.enable(gl.CULL_FACE);
+  }
   Matrices.model = m.multiply(m.translate(aquarium.center), m.scale(aquarium.scale))
   drawModel(aquarium)
   gl.disable(gl.CULL_FACE);
