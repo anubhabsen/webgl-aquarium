@@ -161,6 +161,7 @@ function Initialize()
   makeModel('aquarium', 'assets/aquarium', [0, 0, 0], [aquariumSize.x, aquariumSize.y, aquariumSize.z])
   makeModel('sand', 'assets/sand', [0, -aquariumSize.y-1, 0], [aquariumSize.x, -1, aquariumSize.z])
   makeModel('metal', 'assets/metal', [0, aquariumSize.y+0.2, 0], [aquariumSize.x, 0.2, aquariumSize.z])
+  makeModel('table', 'assets/table', [0, -(26-aquariumSize.y), 0], [1.5*aquariumSize.x, (28-aquariumSize.y), 2.5*aquariumSize.z])
   makeModel('weed', 'assets/weed', [- aquariumSize.x, - aquariumSize.y, 1], [0.05, 0.05, 0.05])
   makeModel('food', 'assets/food', [0, 0, 0], [1, 1, 1])
 
@@ -372,8 +373,8 @@ function tickFish()
 
 function drawScene() {
   var { fish, aquarium, sand, metal } = models;
-  var { weed, wall, light, rock, food } = models;
-  var { cubetex } = models
+  var { weed, wall, light, rock, food, table } = models;
+  // var { cubetex } = models
   //console.log(fishRotationY, fishRotationX);
   if(!weedStart)
   {
@@ -437,6 +438,9 @@ function drawScene() {
 
   Matrices.model = m.multiply(m.translate(wall.center), m.scale(wall.scale))
   drawModel(wall)
+
+  Matrices.model = m.multiply(m.translate(table.center), m.scale(table.scale))
+  drawModel(table)
 
   Matrices.model = m.multiply(m.translate(light.center), m.scale(light.scale))
   drawLight(light)
