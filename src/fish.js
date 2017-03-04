@@ -18,6 +18,8 @@ function timeNow() {
 
 var fishes = []
 var turnTime = 10
+var currentViewFish = 0
+var fishViewOn = false
 
 function Fish(x, y, z, lookx, looky, lookz, alive, type, id, scale, lastTurnTime, triggerReverse, angley) {
   return {
@@ -39,6 +41,19 @@ function Fish(x, y, z, lookx, looky, lookz, alive, type, id, scale, lastTurnTime
   }
 }
 
+function cycleFish() {
+  fishViewOn = true
+  var temp = [fishes[currentViewFish].x, fishes[currentViewFish].y, fishes[currentViewFish].z]
+  var ret = temp.concat([fishes[currentViewFish].lookx, fishes[currentViewFish].looky, fishes[currentViewFish].lookz])
+  // currentViewFish = (currentViewFish + 1) % fishes.length
+  return ret
+}
+
+function cancelFishView() {
+  currentViewFish = 0
+  fishViewOn = false
+}
+
 function initFish () {
   var fish1 = Fish(0, 0, 0, 1, 1, 1, true, 1, 1, [0.7, 0.7, 0.7], timeNow(), 0, 0)
   var fish2 = Fish(3, 3, 3, -1, -1, -1, true, 1, 2, [0.7, 0.7, 0.7], timeNow(), 0, 0)
@@ -56,20 +71,22 @@ mousetrap.bind('k', function () {
 })
 
 function drawFish() {
-  fishes.map(function (fish) {
-    var mfish = models['fish' + fish.id.toString()]
+  fishes.map(function (fish, idx) {
+    if ((!fishViewOn) || (fishViewOn && (idx != currentViewFish))) {
+      var mfish = models['fish' + fish.id.toString()]
 
-    // var x = fish.lookx - fish.x
-    // var y = fish.looky - fish.y
-    // var z = fish.lookz - fish.z
-    //
-    // var theta = Math.atan2(z, x)
-    // var phi = Math.atan2(y, Math.sqrt(x*x + z*z))
-    // console.log("HIIII", theta, phi)
-    Matrices.model = m.scale(mfish.scale)
-    Matrices.model = m.multiply(m.rotateY(fish.angley * Math.PI/180), Matrices.model)
-    Matrices.model = m.multiply(m.inverse(m.lookAt([fish.x, fish.y, fish.z], [-fish.lookx, -fish.looky, -fish.lookz], [0, 1, 0])), Matrices.model)
-    drawModel(mfish);
+      // var x = fish.lookx - fish.x
+      // var y = fish.looky - fish.y
+      // var z = fish.lookz - fish.z
+      //
+      // var theta = Math.atan2(z, x)
+      // var phi = Math.atan2(y, Math.sqrt(x*x + z*z))
+      // console.log("HIIII", theta, phi)
+      Matrices.model = m.scale(mfish.scale)
+      Matrices.model = m.multiply(m.rotateY(fish.angley * Math.PI/180), Matrices.model)
+      Matrices.model = m.multiply(m.inverse(m.lookAt([fish.x, fish.y, fish.z], [-fish.lookx, -fish.looky, -fish.lookz], [0, 1, 0])), Matrices.model)
+      drawModel(mfish);
+    }
   })
 }
 
@@ -157,5 +174,7 @@ module.exports = {
   initFish,
   drawFish,
   updateFish,
+  cycleFish,
+  cancelFishView,
   aquariumSize,
 }

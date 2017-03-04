@@ -6,43 +6,57 @@ var weedStart = 0;
 var movepositivex = 1;
 var pebblesN = 15;
 
-var { initFish, drawFish, updateFish, aquariumSize } = require('./fish')
+var { initFish, drawFish, updateFish, cycleFish, cancelFishView, aquariumSize } = require('./fish')
 
 
 var mousetrap = require('mousetrap')
 
 mousetrap.bind('c', function () {
-  Camera.mouseUpdate = !Camera.mouseUpdate;
+  if (!Camera.fishView) {
+    Camera.mouseUpdate = !Camera.mouseUpdate;
+  }
 })
 
 mousetrap.bind('f', function () {
-  Camera.fishLens = !Camera.fishLens;
+  // Camera.fishLens = !Camera.fishLens;
+  // console.log('BIIIII', Camera)
+  if (!Camera.fishView) {
+    Camera.fishView = true
+  }
+  else {
+    cancelFishView()
+    Camera.fishView = false
+  }
 })
 
 mousetrap.bind('s', function () {
-  var xd = Camera.lookx - Camera.x
-  var yd = Camera.looky - Camera.y
-  var zd = Camera.lookz - Camera.z
-  var magnitude = Math.sqrt(xd*xd + yd*yd + zd*zd)
-  Camera.x -= 0.8 * xd / magnitude
-  Camera.y -= 0.8 * yd / magnitude
-  Camera.z -= 0.8 * zd / magnitude
-  updateCameraTarget()
+  if (!Camera.fishView) {
+    var xd = Camera.lookx - Camera.x
+    var yd = Camera.looky - Camera.y
+    var zd = Camera.lookz - Camera.z
+    var magnitude = Math.sqrt(xd*xd + yd*yd + zd*zd)
+    Camera.x -= 0.8 * xd / magnitude
+    Camera.y -= 0.8 * yd / magnitude
+    Camera.z -= 0.8 * zd / magnitude
+    updateCameraTarget()
+  }
 })
 
 mousetrap.bind('w', function() {
-  var xd = Camera.lookx - Camera.x
-  var yd = Camera.looky - Camera.y
-  var zd = Camera.lookz - Camera.z
-  var magnitude = Math.sqrt(xd*xd + yd*yd + zd*zd)
-  Camera.x += 0.8 * xd / magnitude
-  Camera.y += 0.8 * yd / magnitude
-  Camera.z += 0.8 * zd / magnitude
-  updateCameraTarget()
+  if (!Camera.fishView) {
+    var xd = Camera.lookx - Camera.x
+    var yd = Camera.looky - Camera.y
+    var zd = Camera.lookz - Camera.z
+    var magnitude = Math.sqrt(xd*xd + yd*yd + zd*zd)
+    Camera.x += 0.8 * xd / magnitude
+    Camera.y += 0.8 * yd / magnitude
+    Camera.z += 0.8 * zd / magnitude
+    updateCameraTarget()
+  }
 })
 
 function updateCameraTarget(e) {
-  if (!Camera.mouseUpdate) return;
+  if (!Camera.mouseUpdate || Camera.fishView) return;
   var rect = window.canvas.getBoundingClientRect();
   if (e) {
     Camera.mouseX = e.clientX;
@@ -83,6 +97,7 @@ var Camera = {
   lookz: 0,
   mouseUpdate: true,
   fishLens: false,
+  fishView: false,
   mouseX: 0,
   mouseY: 0,
 }
@@ -170,12 +185,22 @@ function animate() {
   var timeNow = new Date().getTime();
   if (lastTime == 0) { lastTime = timeNow; return; }
   // var d = (timeNow - lastTime) / 50;
+  updateFishView();
   updateCamera();
   updateBubbles();
   tickWeed();
   updateFood();
   updateFish();
   lastTime = timeNow;
+}
+
+function updateFishView() {
+  if (Camera.fishView) {
+    var eyetarget = cycleFish()
+    console.log(eyetarget)
+    Camera.x = eyetarget[0], Camera.y = eyetarget[1], Camera.z = eyetarget[2]
+    Camera.lookx = eyetarget[3], Camera.looky = eyetarget[4], Camera.lookz = eyetarget[5]
+  }
 }
 
 function updateBubbles() {
