@@ -30,6 +30,12 @@ mousetrap.bind('f', function () {
   }
 })
 
+mousetrap.bind('v', function () {
+  // Camera.fishLens = !Camera.fishLens;
+  // console.log('BIIIII', Camera)
+  Camera.fishLens = !Camera.fishLens
+})
+
 mousetrap.bind('s', function () {
   if (!Camera.fishView) {
     var xd = Camera.lookx - Camera.x
@@ -366,7 +372,7 @@ function updateCamera() {
   Matrices.projection = m.perspective(Math.PI/2, canvas.width / canvas.height, 0.1, 500);
   gl.uniformMatrix4fv(gl.getUniformLocation(program, "view"), false, Matrices.view);
   gl.uniformMatrix4fv(gl.getUniformLocation(program, "projection"), false, Matrices.projection);
-  gl.uniform1i(gl.getUniformLocation(program, "isFishLens"), Camera.fishLens);
+  gl.uniform1i(gl.getUniformLocation(program, "isFishLens"), Camera.fishLens && Camera.fishView);
   // return m.multiply(Matrices.projection, Matrices.view);
 
   var lightPos = models.light.center
