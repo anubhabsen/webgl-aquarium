@@ -166,7 +166,9 @@ function Initialize()
   makeModel('weed', 'assets/weed', [- aquariumSize.x, - aquariumSize.y, 1], [0.05, 0.05, 0.05])
   makeModel('food', 'assets/food', [0, 0, 0], [1, 1, 1])
 
-  tick()
+  makeModel('cubetex', 'assets/cubetex', [15, 10, 5])
+
+  tick();
 }
 window.Initialize = Initialize
 
@@ -373,6 +375,7 @@ function tickFish()
 function drawScene() {
   var { fish, aquarium } = models;
   var { weed, wall, light, rock, food, table } = models;
+  var { cubetex } = models
   //console.log(fishRotationY, fishRotationX);
   if(!weedStart)
   {
@@ -390,6 +393,9 @@ function drawScene() {
 
   gl.enable(gl.DEPTH_TEST);
   gl.depthFunc(gl.LEQUAL);
+
+  Matrices.model = m.multiply(m.translate(cubetex.center), m.scale(cubetex.scale))
+  drawModel(cubetex)
 
   Matrices.model = m.scale(fish.scale)
   Matrices.model = m.multiply(Matrices.model, m.rotateY(90*Math.PI/180))

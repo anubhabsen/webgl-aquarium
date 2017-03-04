@@ -1,42 +1,55 @@
+precision mediump float;
+
 struct Material {
-  lowp vec3 ambient;
-  lowp vec3 diffuse;
-  lowp vec3 specular;
-  lowp float shininess;
+  vec3 ambient;
+  vec3 diffuse;
+  vec3 specular;
+  float shininess;
 };
 
 struct Light {
-  lowp vec3 position;
+  vec3 position;
 
-  lowp vec3 ambient;
-  lowp vec3 diffuse;
-  lowp vec3 specular;
+  vec3 ambient;
+  vec3 diffuse;
+  vec3 specular;
 };
 
-varying lowp vec3 FragPos, Normal;
+varying vec3 FragPos, Normal;
+varying vec2 TextureCoord;
 
-uniform lowp vec3 viewPos;
+uniform vec3 viewPos;
 uniform Light light;
 uniform Material material;
 uniform bool isLight;
+uniform sampler2D sampler;
+uniform bool isTextured;
 
 void main() {
   // Ambient
-  lowp vec3 ambientC = light.ambient * material.ambient;
+  vec3 ambientC = light.ambient * material.ambient;
 
   // Diffuse
-  lowp vec3 norm = normalize(Normal);
-  lowp vec3 lightDir = normalize(light.position - FragPos);
-  lowp float diff = max(dot(norm, lightDir), 0.0);
-  lowp vec3 diffuseC = light.diffuse * (diff * material.diffuse);
+  vec3 norm = normalize(Normal);
+  vec3 lightDir = normalize(light.position - FragPos);
+  float diff = max(dot(norm, lightDir), 0.0);
+  vec3 diffuseC = light.diffuse * (diff * material.diffuse);
 
   // Specular
-  lowp vec3 viewDir = normalize(viewPos - FragPos);
-  lowp vec3 reflectDir = reflect(-lightDir, norm);
-  lowp float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-  lowp vec3 specularC = light.specular * (spec * material.specular);
+  vec3 viewDir = normalize(viewPos - FragPos);
+  vec3 reflectDir = reflect(-lightDir, norm);
+  float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+  vec3 specularC = light.specular * (spec * material.specular);
 
-  lowp vec3 result = ambientC + diffuseC + specularC;
-  gl_FragColor = vec4(result, 1.0);
+  vec3 result = ambientC + diffuseC + specularC;
+
+  vec4 fragmentColor;
+  if (isTextured) {
+      fragmentColor = texture2D(sampler, vec2(TextureCoord.s, TextureCoord.t));
+  } else {
+      fragmentColor = vec4(1.0, 1.0, 1.0, 1.0);
+  }
+  gl_FragColor = vec4(fragmentColor.rgb * result, fragmentColor.a);
+
   if (isLight) gl_FragColor = vec4(1.0);
 }

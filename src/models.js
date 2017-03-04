@@ -52,9 +52,33 @@ function parseMtl(mtlstring) {
       ]
     } else if (words[0] == 'Ns') {
       mtllib[curmtl].shininess = parseFloat(words[1])
+    } else if (words[0] == 'map_Kd') {
+      loadTexture(words[1], mtllib[curmtl])
     }
   }
   return mtllib
+}
+
+function handleLoadedTexture(texture) {
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+  gl.generateMipmap(gl.TEXTURE_2D);
+
+  gl.bindTexture(gl.TEXTURE_2D, null);
+}
+
+function loadTexture(src, material) {
+  var texture = gl.createTexture();
+  texture.image = new Image();
+  texture.image.onload = function () {
+    handleLoadedTexture(texture)
+    material.texture = texture
+  }
+  texture.image.src = src;
+  return texture;
 }
 
 function createModel(name, filedata, mtlstring) //Create object from blender
@@ -72,6 +96,9 @@ function createModel(name, filedata, mtlstring) //Create object from blender
 
   var normals = [];
   var normal_buffer_data = [];
+
+  var textures = [];
+  var texture_buffer_data = [];
 
   model.vaos = [];
 
@@ -111,6 +138,11 @@ function createModel(name, filedata, mtlstring) //Create object from blender
       cur_point['z']=parseFloat(words[3]);
       //console.log(words);
       normals.push(cur_point);
+    } else if (words[0] == "vt") {
+      let cur_point = {};
+      cur_point.s = parseFloat(words[1]);
+      cur_point.t = parseFloat(words[2]);
+      textures.push(cur_point);
     }
   }
   model.minX = minX
@@ -127,20 +159,26 @@ function createModel(name, filedata, mtlstring) //Create object from blender
     if(words[0] == "f") {
       for (let wc = 1; wc < 4; wc++) {
         let vxdata = words[wc].split('/')
-        let t = parseInt(vxdata[0]) - 1
-        let f = parseInt(vxdata[2]) - 1
-        vertex_buffer_data.push(points[t].x)
-        vertex_buffer_data.push(points[t].y)
-        vertex_buffer_data.push(points[t].z)
+        let p = parseInt(vxdata[0]) - 1
+        let t = parseInt(vxdata[1]) - 1
+        let n = parseInt(vxdata[2]) - 1
+        vertex_buffer_data.push(points[p].x)
+        vertex_buffer_data.push(points[p].y)
+        vertex_buffer_data.push(points[p].z)
+
+        if (!isNaN(t)) {
+          texture_buffer_data.push(textures[t].s)
+          texture_buffer_data.push(textures[t].t)
+        }
 
         if (model.invertNormals) {
-          normal_buffer_data.push(-normals[f].x)
-          normal_buffer_data.push(-normals[f].y)
-          normal_buffer_data.push(-normals[f].z)
+          normal_buffer_data.push(-normals[n].x)
+          normal_buffer_data.push(-normals[n].y)
+          normal_buffer_data.push(-normals[n].z)
         } else {
-          normal_buffer_data.push(normals[f].x)
-          normal_buffer_data.push(normals[f].y)
-          normal_buffer_data.push(normals[f].z)
+          normal_buffer_data.push(normals[n].x)
+          normal_buffer_data.push(normals[n].y)
+          normal_buffer_data.push(normals[n].z)
         }
       }
     } else if (words[0] == 'usemtl') {
@@ -156,11 +194,25 @@ function createModel(name, filedata, mtlstring) //Create object from blender
         gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normal_buffer_data), gl.STATIC_DRAW);
         vao.normalBuffer = normalBuffer
+
+        var textureBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
+        if (texture_buffer_data.length > 0) {
+          gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texture_buffer_data), gl.STATIC_DRAW);
+          vao.isTextured = true
+        } else {
+          for (let i = 0; i < 2*vao.numVertex; i++) texture_buffer_data.push(0)
+          gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texture_buffer_data), gl.STATIC_DRAW);
+          vao.isTextured = false
+        }
+        vao.textureBuffer = textureBuffer
+
         vao.material = mtllib[curmtl]
 
         model.vaos.push(vao)
         vertex_buffer_data = []
         normal_buffer_data = []
+        texture_buffer_data = []
       }
       curmtl = words[1]
     }
@@ -169,7 +221,6 @@ function createModel(name, filedata, mtlstring) //Create object from blender
 
 function drawModel (model) {
   if (!model.vaos) return
-
   gl.uniformMatrix4fv(gl.getUniformLocation(program, "model"), false, Matrices.model);
   gl.uniformMatrix4fv(gl.getUniformLocation(program, "modelInv"), false, m.inverse(Matrices.model));
 
@@ -192,6 +243,17 @@ function drawVAO(vao) {
 
   gl.bindBuffer(gl.ARRAY_BUFFER, vao.normalBuffer)
   gl.vertexAttribPointer(program.normalAttribute, 3, gl.FLOAT, false, 0, 0);
+
+  var isTextured = vao.material.texture && vao.isTextured
+  // console.log(isTextured)
+  gl.uniform1i(gl.getUniformLocation(program, "isTextured"), isTextured);
+  gl.bindBuffer(gl.ARRAY_BUFFER, vao.textureBuffer)
+  gl.vertexAttribPointer(program.textureAttribute, 2, gl.FLOAT, false, 0, 0);
+  if (isTextured) {
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, vao.material.texture);
+    gl.uniform1i(gl.getUniformLocation(program, "sampler"), 0);
+  }
 
   // draw
   gl.drawArrays(gl.TRIANGLES, 0, vao.numVertex);

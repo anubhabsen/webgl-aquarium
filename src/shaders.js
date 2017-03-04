@@ -48,6 +48,9 @@ function createProgram(gl, name, vertexShader, fragmentShader) {
   program.normalAttribute = gl.getAttribLocation(program, "a_normal");
   gl.enableVertexAttribArray(program.normalAttribute);
 
+  program.textureAttribute = gl.getAttribLocation(program, "a_texture");
+  gl.enableVertexAttribArray(program.textureAttribute);
+
   shaders[name] = progra;
 }
 

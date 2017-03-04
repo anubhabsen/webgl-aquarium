@@ -1,12 +1,14 @@
-precision lowp float;
+precision mediump float;
 
 attribute vec3 a_position;
 attribute vec3 a_normal;
+attribute vec2 a_texture;
 
 uniform mat4 projection, view, model, modelInv;
 uniform bool isFishLens;
 
-varying lowp vec3 FragPos, Normal;
+varying vec3 FragPos, Normal;
+varying vec2 TextureCoord;
 
 void main() {
   gl_Position = projection * view * model * vec4(a_position, 1);
@@ -26,4 +28,5 @@ void main() {
   tm[1] = vec3(modelInv[0].y, modelInv[1].y, modelInv[2].y);
   tm[2] = vec3(modelInv[0].z, modelInv[1].z, modelInv[2].z);
   Normal = tm * vec3(a_normal);
+  TextureCoord = a_texture;
 }
