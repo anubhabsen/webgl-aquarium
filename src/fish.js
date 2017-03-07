@@ -3,6 +3,12 @@ var mousetrap = require('mousetrap')
 var { makeModel, drawModel } = require('./models')
 
 var aquariumSize = {
+  x: 10 * 0.8,
+  y: 7 * 0.8,
+  z: 10 * 0.8,
+}
+
+var aquariumSizeOri = {
   x: 10,
   y: 7,
   z: 10,
@@ -232,6 +238,6 @@ module.exports = {
   cycleFish,
   cancelFishView,
   fishMoveTowardsFood,
-  aquariumSize,
+  aquariumSize: aquariumSizeOri,
   updateEgg,
 }
