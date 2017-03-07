@@ -208,7 +208,7 @@ function animate() {
 function updateFishView() {
   if (Camera.fishView) {
     var eyetarget = cycleFish()
-    console.log(eyetarget)
+    // console.log(eyetarget)
     Camera.x = eyetarget[0], Camera.y = eyetarget[1], Camera.z = eyetarget[2]
     Camera.lookx = eyetarget[3], Camera.looky = eyetarget[4], Camera.lookz = eyetarget[5]
   }

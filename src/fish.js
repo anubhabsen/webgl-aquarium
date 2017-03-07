@@ -2,6 +2,8 @@ var m = require('./matrix')
 var mousetrap = require('mousetrap')
 var { makeModel, drawModel } = require('./models')
 
+var mousetrap = require('mousetrap')
+
 var aquariumSize = {
   x: 10 * 0.8,
   y: 7 * 0.8,
@@ -26,6 +28,9 @@ var fishes = []
 var turnTime = 10
 var currentViewFish = 0
 var fishViewOn = false
+
+mousetrap.bind('left',  () => currentViewFish = (fishes.length + currentViewFish + 1) % fishes.length)
+mousetrap.bind('right', () => currentViewFish = (fishes.length + currentViewFish - 1) % fishes.length)
 
 function Fish(x, y, z, lookx, looky, lookz, alive, type, id, scale, lastTurnTime, triggerReverse, angley) {
   return {
@@ -94,13 +99,13 @@ var eggData = {
 
 mousetrap.bind('e', function () {
   if (!eggData.active) {
-    models.egg['center'][0] = fishes[0].x
-    models.egg['center'][1] = fishes[0].y
-    models.egg['center'][2] = fishes[0].z
+    models.egg['center'][0] = fishes[currentViewFish || 0].x
+    models.egg['center'][1] = fishes[currentViewFish || 0].y
+    models.egg['center'][2] = fishes[currentViewFish || 0].z
     eggData.active = true;
     eggData.startTime = new Date().getTime() / 1000.0
   }
-  console.log('eggs');
+  // console.log('eggs');
 })
 
 function drawFish() {
