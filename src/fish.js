@@ -88,7 +88,8 @@ function fishMoveTowardsFood(foodx, foody, foodz) {
 }
 
 mousetrap.bind('k', function () {
-  fishes.splice(0, 1);
+  fishes.splice(currentViewFish || 0, 1);
+  currentViewFish = (currentViewFish + 1) % fishes.length
 })
 
 var eggData = {
