@@ -6,7 +6,7 @@ var mousetrap = require('mousetrap')
 
 var aquariumSize = {
   x: 10 * 0.8,
-  y: 7 * 0.8,
+  y: 7 * 0.7,
   z: 10 * 0.8,
 }
 
