@@ -74,7 +74,7 @@ function initFish () {
   fishes = [fish1, fish2, fish3, fish4]
 
   fishes.map(function (fish) {
-    makeModel('fish' + fish.id.toString(), 'assets/fish' + fish.type, [fish.x, fish.y, fish.z], fish.scale)
+    makeModel('fish' + fish.type.toString(), 'assets/fish' + fish.type, [fish.x, fish.y, fish.z], fish.scale)
   })
   makeModel('egg', 'assets/food', [0, 0, 0], [0.3, 0.3, 0.3])
 }
@@ -111,7 +111,7 @@ mousetrap.bind('e', function () {
 function drawFish() {
   fishes.map(function (fish, idx) {
     if ((!fishViewOn) || (fishViewOn && (idx != currentViewFish))) {
-      var mfish = models['fish' + fish.id.toString()]
+      var mfish = models['fish' + fish.type.toString()]
       var eggs = models['egg']
       // var x = fish.lookx - fish.x
       // var y = fish.looky - fish.y
@@ -120,7 +120,7 @@ function drawFish() {
       // var theta = Math.atan2(z, x)
       // var phi = Math.atan2(y, Math.sqrt(x*x + z*z))
       // console.log("HIIII", theta, phi)
-      Matrices.model = m.scale(mfish.scale)
+      Matrices.model = m.scale(fish.scale)
       Matrices.model = m.multiply(m.rotateY(fish.angley * Math.PI/180), Matrices.model)
       Matrices.model = m.multiply(m.inverse(m.lookAt([fish.x, fish.y, fish.z], [-fish.lookx, -fish.looky, -fish.lookz], [0, 1, 0])), Matrices.model)
       drawModel(mfish);
@@ -208,6 +208,8 @@ function updateFish() {
         fish.lookz = fish.z + 3 * (Math.random() - 0.5)
         fish.lastTurnTime = timeNow()
       }
+
+      if (fish.scale[0] < 0.7) fish.scale[0] = fish.scale[1] = fish.scale[2] = fish.scale[0] + 0.001
     // }
   })
 
