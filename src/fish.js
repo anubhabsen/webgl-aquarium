@@ -2,8 +2,6 @@ var m = require('./matrix')
 var mousetrap = require('mousetrap')
 var { makeModel, drawModel } = require('./models')
 
-var mousetrap = require('mousetrap')
-
 var aquariumSize = {
   x: 10 * 0.8,
   y: 7 * 0.7,
@@ -31,6 +29,40 @@ var fishViewOn = false
 
 mousetrap.bind('left',  () => currentViewFish = (fishes.length + currentViewFish + 1) % fishes.length)
 mousetrap.bind('right', () => currentViewFish = (fishes.length + currentViewFish - 1) % fishes.length)
+
+function fishFront() {
+  var fish = fishes[currentViewFish]
+  var x = fish.lookx - fish.x
+  var y = fish.looky - fish.y
+  var z = fish.lookz - fish.z
+  var magnitude = Math.sqrt(x*x + y*y + z*z)
+  fish.x += 0.05 * x / magnitude
+  fish.y += 0.05 * y / magnitude
+  fish.z += 0.05 * z / magnitude
+  fish.lookx += 0.05 * x / magnitude
+  fish.looky += 0.05 * y / magnitude
+  fish.lookz += 0.05 * z / magnitude
+}
+
+function fishLeft() {
+  var fish = fishes[currentViewFish]
+  var r = (fish.x - fish.lookx)*(fish.x - fish.lookx) + (fish.z - fish.lookz)*(fish.z - fish.lookz)
+  r = Math.sqrt(r)
+  var theta = Math.atan2(fish.z - fish.lookz, fish.x - fish.lookx)
+  theta -= 0.02
+  fish.lookx = fish.x + r * Math.cos(theta)
+  fish.lookz = fish.z + r * Math.sin(theta)
+}
+
+function fishRight() {
+  var fish = fishes[currentViewFish]
+  var r = (fish.x - fish.lookx)*(fish.x - fish.lookx) + (fish.z - fish.lookz)*(fish.z - fish.lookz)
+  r = Math.sqrt(r)
+  var theta = Math.atan2(fish.z - fish.lookz, fish.x - fish.lookx)
+  theta += 0.02
+  fish.lookx = fish.x + r * Math.cos(theta)
+  fish.lookz = fish.z + r * Math.sin(theta)
+}
 
 function Fish(x, y, z, lookx, looky, lookz, alive, type, id, scale, lastTurnTime, triggerReverse, angley) {
   return {
@@ -248,4 +280,7 @@ module.exports = {
   fishMoveTowardsFood,
   aquariumSize: aquariumSizeOri,
   updateEgg,
+  fishFront,
+  fishLeft,
+  fishRight,
 }

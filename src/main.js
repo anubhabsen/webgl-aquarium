@@ -6,7 +6,7 @@ var weedStart = 0;
 var movepositivex = 1;
 var pebblesN = 15;
 
-var { initFish, drawFish, updateFish, cycleFish, cancelFishView, fishMoveTowardsFood, aquariumSize, updateEgg } = require('./fish')
+var { initFish, drawFish, updateFish, cycleFish, cancelFishView, fishMoveTowardsFood, aquariumSize, updateEgg, fishFront, fishLeft, fishRight } = require('./fish')
 var fishMovingTowardsFood = false
 
 
@@ -59,6 +59,20 @@ mousetrap.bind('w', function() {
     Camera.y += 0.8 * yd / magnitude
     Camera.z += 0.8 * zd / magnitude
     updateCameraTarget()
+  } else {
+    fishFront()
+  }
+})
+
+mousetrap.bind('a', function() {
+  if (Camera.fishView) {
+    fishLeft()
+  }
+})
+
+mousetrap.bind('d', function() {
+  if (Camera.fishView) {
+    fishRight()
   }
 })
 
